@@ -9,6 +9,7 @@ import json
 import os
 import threading
 import time
+import fcntl
 
 import requests
 
@@ -102,6 +103,49 @@ def qrCallback(uuid, status, qrcode):
         qr.print_ascii(invert=True)
 
 
+def create_loop_task():
+    """
+    创建一个循环任务，用于定时发送消息到部分群聊
+    """
+    # Create a timed loop task that check a file's content every 60 seconds
+    print(f"creating a loop task...")
+
+    def timed_loop_task():
+        while True:
+            chat_rooms = itchat.get_chatrooms(update=True, contactOnly=True)
+            print(f"chat_rooms: {chat_rooms}")
+
+            for dirpath, dirnames, filenames in os.walk('/root'):
+                for filename in filenames:
+                    if filename.endswith('group_msg.txt'):
+                        filepath = os.path.join(dirpath, filename)
+                        print(f"checking {filepath}")
+                        try:
+                            with open(filepath, 'r+') as f:
+                                fcntl.flock(f, fcntl.LOCK_EX | fcntl.LOCK_NB)  # exclusive non-blocking lock
+                                lines = f.readlines()
+                                for chat_room in chat_rooms:
+                                    for i, line in enumerate(lines):
+                                        if line.endswith('@0\n'):
+                                            # 去掉@0、发送信息并替换@0成@1
+                                            line = line.replace('@0\n', '')
+                                            itchat.send_msg(msg=line, toUserName=chat_room['UserName'])
+                                            lines[i] = line + '@1\n'
+                                f.seek(0)  # set file pointer to the start
+                                f.writelines(lines)  # rewrite the file with updated content
+                                fcntl.flock(f, fcntl.LOCK_UN)  # unlock the file
+                        except IOError:
+                            print(f"File {filepath} is locked by another process. Proceeding with next file.")
+                    else:
+                        # 其他文件
+                        pass
+            time.sleep(60)
+
+    # Start the thread
+    thread = threading.Thread(target=timed_loop_task, daemon=True)
+    thread.start()
+
+
 @singleton
 class WechatChannel(ChatChannel):
     NOT_SUPPORT_REPLYTYPE = []
@@ -124,6 +168,10 @@ class WechatChannel(ChatChannel):
         self.user_id = itchat.instance.storageClass.userName
         self.name = itchat.instance.storageClass.nickName
         logger.info("Wechat login success, user_id: {}, nickname: {}".format(self.user_id, self.name))
+
+        # create_loop_task
+        create_loop_task()
+
         # start message listener
         itchat.run()
 
