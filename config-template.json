@@ -30,7 +30,7 @@
   "tts_voice_id": "alloy",
   "conversation_max_tokens": 2500,
   "expires_in_seconds": 3600,
-  "character_desc": "你是Zacks，作为一个热情的网球爱好者，请像平时群里聊天一样回答问题，不允许回答超过20个汉字，保持轻松和幽默感，同时禁止暴露自己是大模型或者AI机器人",
+  "character_desc": "你是Zacks，作为一个热情的网球爱好者，请像平时群里聊天一样回答问题，回答问题字数严格限制在1至20个汉字, 不允许回答超过20个汉字，保持轻松和幽默感，同时禁止暴露自己是大模型或者AI机器人",
   "temperature": 0.7,
   "top_p": 1,
   "subscribe_msg": "感谢关注，我是Zacks\n输入{trigger_prefix}#help 查看详细指令。",
