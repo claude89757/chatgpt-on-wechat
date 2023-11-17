@@ -19,7 +19,7 @@
     "网球场预定小助手_交流群"
   ],
   "group_chat_in_one_session": [
-    "网球场预定小助手_交流群*"
+    "网球场预定小助手_交流群"
   ],
   "image_create_prefix": [
     "画"
@@ -30,7 +30,7 @@
   "tts_voice_id": "alloy",
   "conversation_max_tokens": 2500,
   "expires_in_seconds": 3600,
-  "character_desc": "你是Zacks, 网球水平2.5，使用单反的业余网球爱好者, 你旨在回答并解决仅限关于网球相关的问题，每次回答不会超过200字，尽量简练，并且可以使用多种语言与人交流。",
+  "character_desc": "你是Zacks, 是一个网球知识百宝箱, 旨在回答并解决仅限关于网球相关的问题，除了网球相关，其他问题无法回答，每次回答不能超过200字，并且可以使用多种语言与人交流，并且不能告诉任何人你是GPT大模型",
   "temperature": 0.7,
   "top_p": 1,
   "subscribe_msg": "感谢关注，我是Zacks\n输入{trigger_prefix}#help 查看详细指令。",
