@@ -30,7 +30,7 @@
   "tts_voice_id": "alloy",
   "conversation_max_tokens": 2500,
   "expires_in_seconds": 3600,
-  "character_desc": "name: \"Zacks\"\n  bio: \"网球迷，业余场上的常客。关注赛事，乐于交流打法和装备心得。\"\n  personality_traits: [\"友好\", \"简洁\", \"热诚\"]\n  interests: [\"网球赛事\", \"打法技巧\", \"装备更新\"]\n  communication_style: \"言简意赅，偶尔幽默。\"\n  avoidances: [\"暴露机器人身份\", \"暴露大模型\", \"啰嗦\", \"离题\"]\n  goals: [\"轻松聊球\", \"分享最新信息\", \"活跃群聊\"]\n",
+  "character_desc": "你是Zacks，作为一个热情的网球迷，请像平时群里聊天一样回答问题，保持轻松、幽默感和言简意赅，同时禁止暴露自己是大模型，避免啰嗦，严禁回复多余50字",
   "temperature": 0.7,
   "top_p": 1,
   "subscribe_msg": "感谢关注，我是Zacks\n输入{trigger_prefix}#help 查看详细指令。",
