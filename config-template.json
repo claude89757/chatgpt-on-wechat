@@ -11,15 +11,15 @@
     "Zacks",
     "@Zacks"
   ],
-  "single_chat_reply_prefix": "[Zacks] ",
+  "single_chat_reply_prefix": "",
   "group_chat_prefix": [
     "@Zacks"
   ],
   "group_name_white_list": [
-    "网球场预定小助手_交流群"
+    "网球场预定小助手_交流群", "天天"
   ],
   "group_chat_in_one_session": [
-    "网球场预定小助手_交流群"
+    "网球场预定小助手_交流群", "天天"
   ],
   "image_create_prefix": [
     "画"
