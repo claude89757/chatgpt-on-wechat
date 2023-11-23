@@ -178,7 +178,7 @@ class TencentDocs(object):
         update_time = str(data_list[0]['textValues'][0]).split()[-1]
         # date_str = str(data_list[1][1]).split()[0]
         weekday = str(data_list[0]['textValues'][1]).split()[-1]
-        msg_list = [f"【{weekday} 网球场动态】 @{update_time}"]
+        msg_list = [f"【{weekday} 网球场\U0001F3BE动态】 @{update_time}"]
         for data in reversed(data_list):
             if data['row'] >= 2:
                 cell_data = data['textValues'][1]
@@ -200,7 +200,7 @@ class TencentDocs(object):
         if len(msg_list) == 1:
             # 获取明天的网球场动态
             weekday = str(data_list[0]['textValues'][2]).split()[-1]
-            msg_list[0] = f"【{weekday} 网球场动态】 @{update_time}"
+            msg_list[0] = f"【{weekday} 网球场\U0001F3BE动态】 @{update_time}"
             for data in reversed(data_list):
                 if data['row'] >= 2:
                     cell_data = data['textValues'][2]
