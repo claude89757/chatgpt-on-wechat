@@ -181,7 +181,7 @@ class TencentDocs(object):
         msg_list = [f"【{weekday} 网球场动态】 @{update_time}"]
         for data in reversed(data_list):
             if data['row'] >= 2:
-                cell_data = data['textValues'][2]
+                cell_data = data['textValues'][1]
                 time_slot = time_slots[data['row']-2]
                 if "已过期" in cell_data:
                     pass
