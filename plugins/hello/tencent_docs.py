@@ -197,31 +197,30 @@ class TencentDocs(object):
                     msg_list.append(f"{time_slot}:　{court_name_msg}")
             else:
                 pass
-        if len(msg_list) == 1:
             # 获取明天的网球场动态
-            weekday = str(data_list[0]['textValues'][2]).split()[-1]
-            msg_list[0] = f"【{weekday} 网球场\U0001F3BE动态】 @{update_time}"
-            for data in reversed(data_list):
-                if data['row'] >= 2:
-                    cell_data = data['textValues'][2]
-                    time_slot = time_slots[data['row'] - 2]
-                    if "已过期" in cell_data:
-                        pass
-                    else:
-                        court_name_list = []
-                        for line in str(cell_data).splitlines():
-                            court_name_list.append(line.split()[0])
 
-                        if len(court_name_list) > 3 and data['row'] > 5:
-                            court_name_msg = "|".join(court_name_list[:2]) + "|..."
-                        else:
-                            court_name_msg = "|".join(court_name_list)
-                        msg_list.append(f"{time_slot}:　{court_name_msg}")
-                else:
+        weekday = str(data_list[0]['textValues'][2]).split()[-1]
+        msg_list.append("----------")
+        msg_list.append(f"【{weekday} 网球场\U0001F3BE动态】 @{update_time}")
+        for data in reversed(data_list):
+            if data['row'] >= 2:
+                cell_data = data['textValues'][2]
+                time_slot = time_slots[data['row'] - 2]
+                if "已过期" in cell_data:
                     pass
-            msg = "\n".join(msg_list)
-        else:
-            msg = "\n".join(msg_list)
+                else:
+                    court_name_list = []
+                    for line in str(cell_data).splitlines():
+                        court_name_list.append(line.split()[0])
+
+                    if len(court_name_list) > 3 and data['row'] > 5:
+                        court_name_msg = "|".join(court_name_list[:2]) + "|..."
+                    else:
+                        court_name_msg = "|".join(court_name_list)
+                    msg_list.append(f"{time_slot}:　{court_name_msg}")
+            else:
+                pass
+        msg = "\n".join(msg_list)
         return msg
 
 
