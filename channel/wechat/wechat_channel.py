@@ -10,6 +10,7 @@ import os
 import threading
 import time
 import fcntl
+import datetime
 
 import requests
 
@@ -117,7 +118,7 @@ def create_loop_task():
             for filename in filenames:
                 if filename.endswith('group_msg.txt'):
                     filepath = os.path.join(dirpath, filename)
-                    print(f"checking {filepath}")
+                    # print(f"checking {filepath}")
                     try:
                         with open(filepath, 'r+') as f:
                             fcntl.flock(f, fcntl.LOCK_EX | fcntl.LOCK_NB)  # exclusive non-blocking lock
@@ -138,13 +139,14 @@ def create_loop_task():
                     pass
         # 开始循环
         while True:
+            now = datetime.datetime.now().strftime("%Y/%m/%d %H:%M:%S")
             chat_rooms = itchat.get_chatrooms(update=True, contactOnly=True)
-            print(f"chat_rooms: {chat_rooms}")
+            # print(f"chat_rooms: {chat_rooms}")
             for dirpath, dirnames, filenames in os.walk(path_name):
                 for filename in filenames:
                     if filename.endswith('group_msg.txt'):
                         filepath = os.path.join(dirpath, filename)
-                        print(f"checking {filepath}")
+                        # print(f"checking {filepath}")
                         try:
                             with open(filepath, 'r+') as f:
                                 fcntl.flock(f, fcntl.LOCK_EX | fcntl.LOCK_NB)  # exclusive non-blocking lock
@@ -153,6 +155,7 @@ def create_loop_task():
                                     for i, line in enumerate(lines):
                                         if line.endswith('@0\n'):
                                             # 去掉@0、发送信息并替换@0成@1
+                                            print(f"{now} sending {line}")
                                             line = line.replace('@0\n', '')
                                             itchat.send_msg(msg=line, toUserName=chat_room['UserName'])
                                             lines[i] = line + '@1\n'
