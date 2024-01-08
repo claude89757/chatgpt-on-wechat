@@ -8,7 +8,7 @@ from channel.chat_message import ChatMessage
 from common.log import logger
 from plugins import *
 from config import conf
-from .tencent_docs import get_docs_operator
+from lib.tencent_docs.tencent_docs import get_docs_operator
 
 
 @plugins.register(
