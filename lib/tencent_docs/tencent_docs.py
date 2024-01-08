@@ -264,7 +264,7 @@ class TencentDocs(object):
                             court_name_list.append(line.split()[0])
 
                     for court_name in court_name_list:
-                        if court_name in ["大沙河", "金地威新", "香蜜体育", "香蜜电话", "深圳湾"]:
+                        if court_name in ["大沙河", "金地威新", "香蜜体育", "香蜜电话", "深圳湾", "黄木岗"]:
                             court_key = f"【{court_name}】{weekday}({date_str})空场"
                             if court_free_time_infos.get(court_key):
                                 court_free_time_infos[court_key].append(time_slot)
@@ -293,7 +293,7 @@ class TencentDocs(object):
                             court_name_list.append(line.split()[0])
 
                     for court_name in court_name_list:
-                        if court_name in ["大沙河", "金地威新", "香蜜体育", "香蜜电话", "深圳湾"]:
+                        if court_name in ["大沙河", "金地威新", "香蜜体育", "香蜜电话", "深圳湾", "黄木岗"]:
                             court_key = f"【{court_name}】{weekday}({date_str})空场"
                             if court_free_time_infos.get(court_key):
                                 court_free_time_infos[court_key].append(time_slot)
