@@ -191,9 +191,9 @@ class TencentDocs(object):
                         court_name_list.append(line.split()[0])
 
                     if len(court_name_list) > 3 and data['row'] > 5:
-                        court_name_msg = "|".join(court_name_list[:2]) + "|..."
+                        court_name_msg = ",".join(court_name_list[:2]) + ",..."
                     else:
-                        court_name_msg = "|".join(court_name_list)
+                        court_name_msg = ",".join(court_name_list)
                     msg_list.append(f"{time_slot}:　{court_name_msg}")
             else:
                 pass
@@ -214,14 +214,143 @@ class TencentDocs(object):
                         court_name_list.append(line.split()[0])
 
                     if len(court_name_list) > 3 and data['row'] > 5:
-                        court_name_msg = "|".join(court_name_list[:2]) + "|..."
+                        court_name_msg = ",".join(court_name_list[:2]) + ",..."
                     else:
-                        court_name_msg = "|".join(court_name_list)
+                        court_name_msg = ",".join(court_name_list)
                     msg_list.append(f"{time_slot}:　{court_name_msg}")
             else:
                 pass
         msg = "\n".join(msg_list)
         return msg
+
+    def get_up_for_send_msg_list(self):
+        """
+        从在线表格中，获取待发送的信息列表
+        """
+        time_slots = [['21:00', '22:00'],
+                      ['20:00', '21:00'],
+                      ['19:00', '20:00'],
+                      ['18:00', '19:00'],
+                      ['17:00', '18:00'],
+                      ['16:00', '17:00'],
+                      ['15:00', '16:00'],
+                      ['14:00', '15:00'],
+                      ['13:00', '14:00'],
+                      ['12:00', '13:00'],
+                      ['11:00', '12:00'],
+                      ['10:00', '11:00'],
+                      ['09:00', '10:00'],
+                      ['08:00', '09:00'],
+                      ['07:00', '08:00'], ]
+
+        data_list = self.get_row_data("300000000$NLrsOYBdnaed", "BB08J2", "1-5")
+        print(data_list)
+        # 获取今天的网球场动态
+        weekday = str(data_list[0]['textValues'][1]).split()[-1]
+        date_str = str(data_list[0]['textValues'][1]).split()[0]
+        court_free_time_infos = {}
+        for data in data_list:
+            if data['row'] >= 2:
+                cell_data = data['textValues'][1]
+                time_slot = time_slots[data['row'] - 2]
+                if "已过期" in cell_data:
+                    pass
+                else:
+                    court_name_list = []
+                    for line in str(cell_data).splitlines():
+                        if "香蜜体育 (6)" in line:
+                            court_name_list.append("香蜜电话")
+                        else:
+                            court_name_list.append(line.split()[0])
+
+                    for court_name in court_name_list:
+                        if court_name in ["大沙河", "金地威新", "香蜜体育", "香蜜电话", "深圳湾"]:
+                            court_key = f"【{court_name}】{weekday}({date_str})空场:"
+                            if court_free_time_infos.get(court_key):
+                                court_free_time_infos[court_key].append(time_slot)
+                            else:
+                                court_free_time_infos[court_key] = [time_slot]
+                        else:
+                            pass
+            else:
+                pass
+
+        # 获取明天的网球场动态
+        weekday = str(data_list[0]['textValues'][2]).split()[-1]
+        date_str = str(data_list[0]['textValues'][2]).split()[0]
+        for data in data_list:
+            if data['row'] >= 2:
+                cell_data = data['textValues'][2]
+                time_slot = time_slots[data['row'] - 2]
+                if "已过期" in cell_data:
+                    pass
+                else:
+                    court_name_list = []
+                    for line in str(cell_data).splitlines():
+                        if "香蜜体育 (6)" in line:
+                            court_name_list.append("香蜜电话")
+                        else:
+                            court_name_list.append(line.split()[0])
+
+                    for court_name in court_name_list:
+                        if court_name in ["大沙河", "金地威新", "香蜜体育", "香蜜电话", "深圳湾"]:
+                            court_key = f"【{court_name}】{weekday}({date_str})空场:"
+                            if court_free_time_infos.get(court_key):
+                                court_free_time_infos[court_key].append(time_slot)
+                            else:
+                                court_free_time_infos[court_key] = [time_slot]
+                        else:
+                            pass
+            else:
+                pass
+
+        up_for_send_msg_list = []
+        for court_name, time_slot_list in court_free_time_infos.items():
+            merged_time_slot_list = merge_time_ranges(time_slot_list)
+            slot_msg_list = []
+            for slot in merged_time_slot_list:
+                slot_msg_list.append(f"{slot[0]}-{slot[1]}")
+            slot_msg = "|".join(slot_msg_list)
+            msg = f"{court_name}: {slot_msg}"
+            up_for_send_msg_list.append(msg)
+        return up_for_send_msg_list
+
+
+def merge_time_ranges(data):
+    """
+    将时间段合并
+
+    Args:
+        data: 包含多个时间段的列表，每个时间段由开始时间和结束时间组成，格式为[['07:00', '08:00'], ['07:00', '09:00'], ...]
+
+    Returns:
+        合并后的时间段列表，每个时间段由开始时间和结束时间组成，格式为[['07:00', '09:00'], ['09:00', '16:00'], ...]
+    """
+    if not data:
+        return data
+    else:
+        pass
+    print(f"merging {data}")
+    # 将时间段转换为分钟数，并按照开始时间排序
+    data_in_minutes = sorted([(int(start[:2]) * 60 + int(start[3:]), int(end[:2]) * 60 + int(end[3:]))
+                              for start, end in data])
+
+    # 合并重叠的时间段
+    merged_data = []
+    start, end = data_in_minutes[0]
+    for i in range(1, len(data_in_minutes)):
+        next_start, next_end = data_in_minutes[i]
+        if next_start <= end:
+            end = max(end, next_end)
+        else:
+            merged_data.append((start, end))
+            start, end = next_start, next_end
+    merged_data.append((start, end))
+
+    # 将分钟数转换为时间段
+    result = [[f'{start // 60:02d}:{start % 60:02d}', f'{end // 60:02d}:{end % 60:02d}'] for start, end in merged_data]
+    print(f"merged {result}")
+    return result
 
 
 # Testing

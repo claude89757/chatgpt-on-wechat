@@ -25,6 +25,7 @@ from common.time_check import time_checker
 from config import conf, get_appdata_dir
 from lib import itchat
 from lib.itchat.content import *
+from plugins.hello.tencent_docs import get_docs_operator
 
 
 @itchat.msg_register([TEXT, VOICE, PICTURE, NOTE, ATTACHMENT, SHARING])
@@ -112,62 +113,26 @@ def create_loop_task():
     print(f"creating a loop task...")
 
     def timed_loop_task():
-        path_name = "/root"
-        # 第一次启动，先把历史任务都清理
-        for dirpath, dirnames, filenames in os.walk(path_name):
-            for filename in filenames:
-                if filename.endswith('group_msg.txt'):
-                    filepath = os.path.join(dirpath, filename)
-                    # print(f"checking {filepath}")
-                    try:
-                        with open(filepath, 'r+') as f:
-                            fcntl.flock(f, fcntl.LOCK_EX | fcntl.LOCK_NB)  # exclusive non-blocking lock
-                            lines = f.readlines()
-                            for i, line in enumerate(lines):
-                                if line.endswith('@0\n'):
-                                    # 去掉@0、发送信息并替换@0成@1
-                                    line = line.replace('@0\n', '')
-                                    # itchat.send_msg(msg=line, toUserName=chat_room['UserName'])
-                                    lines[i] = line + '@1\n'
-                            f.seek(0)  # set file pointer to the start
-                            f.writelines(lines)  # rewrite the file with updated content
-                            fcntl.flock(f, fcntl.LOCK_UN)  # unlock the file
-                    except IOError:
-                        print(f"File {filepath} is locked by another process. Proceeding with next file.")
-                else:
-                    # 其他文件
-                    pass
         # 开始循环
+        is_send_msg_list = []
         while True:
             now = datetime.datetime.now().strftime("%Y/%m/%d %H:%M:%S")
             chat_rooms = itchat.get_chatrooms(update=True, contactOnly=True)
-            # print(f"chat_rooms: {chat_rooms}")
-            for dirpath, dirnames, filenames in os.walk(path_name):
-                for filename in filenames:
-                    if filename.endswith('group_msg.txt'):
-                        filepath = os.path.join(dirpath, filename)
-                        # print(f"checking {filepath}")
-                        try:
-                            with open(filepath, 'r+') as f:
-                                fcntl.flock(f, fcntl.LOCK_EX | fcntl.LOCK_NB)  # exclusive non-blocking lock
-                                lines = f.readlines()
-                                for chat_room in chat_rooms:
-                                    for i, line in enumerate(lines):
-                                        if line.endswith('@0\n'):
-                                            # 去掉@0、发送信息并替换@0成@1
-                                            print(f"{now} sending {line}")
-                                            line = line.replace('@0\n', '')
-                                            itchat.send_msg(msg=line, toUserName=chat_room['UserName'])
-                                            lines[i] = line + '@1\n'
-                                f.seek(0)  # set file pointer to the start
-                                f.writelines(lines)  # rewrite the file with updated content
-                                fcntl.flock(f, fcntl.LOCK_UN)  # unlock the file
-                        except IOError:
-                            print(f"File {filepath} is locked by another process. Proceeding with next file.")
-                    else:
-                        # 其他文件
-                        pass
-            time.sleep(60)
+            print(f"looping chat_rooms: {chat_rooms}")
+            try:
+                docs = get_docs_operator()
+                for chat_room in chat_rooms:
+                    up_for_send_msg = docs.get_up_for_send_msg_list()  # 获取当日网球场状态
+                    for msg in up_for_send_msg:
+                        if msg in is_send_msg_list:
+                            pass
+                        else:
+                            print(f"{now} sending {msg}")
+                            itchat.send_msg(msg=msg, toUserName=chat_room['UserName'])
+                            is_send_msg_list.append(msg)
+            except Exception as error:
+                print(f"looping error: {error}")
+            time.sleep(120)
 
     # Start the thread
     thread = threading.Thread(target=timed_loop_task, daemon=True)
