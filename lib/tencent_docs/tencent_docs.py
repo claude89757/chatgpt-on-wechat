@@ -7,6 +7,7 @@
 @Software: PyCharm
 """
 import os
+import datetime
 import requests
 import json
 
@@ -243,7 +244,13 @@ class TencentDocs(object):
                       ['08:00', '09:00'],
                       ['07:00', '08:00'], ]
 
-        data_list = self.get_row_data("300000000$NLrsOYBdnaed", "BB08J2", "1-5")
+
+        # 获取当前日期
+        weekday = datetime.datetime.today().weekday()
+        if weekday == 5:
+            data_list = self.get_row_data("300000000$NLrsOYBdnaed", "BB08J2", "1-8")
+        else:
+            data_list = self.get_row_data("300000000$NLrsOYBdnaed", "BB08J2", "1-5")
         print(data_list)
         # 获取今天的网球场动态
         weekday = str(data_list[0]['textValues'][1]).split()[-1]
@@ -261,7 +268,7 @@ class TencentDocs(object):
                         if "香蜜体育 (6)" in line:
                             court_name_list.append("香蜜电话")
                         else:
-                            court_name_list.append(line.split()[0])
+                            court_name_list.append(str(line.split()[0]).strip())
 
                     for court_name in court_name_list:
                         if court_name in ["大沙河", "金地威新", "香蜜体育", "香蜜电话", "深圳湾", "黄木岗"]:
@@ -290,7 +297,7 @@ class TencentDocs(object):
                         if "香蜜体育 (6)" in line:
                             court_name_list.append("香蜜电话")
                         else:
-                            court_name_list.append(line.split()[0])
+                            court_name_list.append(str(line.split()[0]).strip())
 
                     for court_name in court_name_list:
                         if court_name in ["大沙河", "金地威新", "香蜜体育", "香蜜电话", "深圳湾", "黄木岗"]:

@@ -111,7 +111,6 @@ def create_loop_task():
     """
     # Create a timed loop task that check a file's content every 60 seconds
     print(f"creating a loop task...")
-
     def timed_loop_task():
         # 开始循环
         is_send_msg_list = []
