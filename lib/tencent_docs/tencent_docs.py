@@ -221,6 +221,7 @@ class TencentDocs(object):
                     msg_list.append(f"{time_slot}:　{court_name_msg}")
             else:
                 pass
+        msg_list.append(f"\n------\nSupported by: #小程序://TT网球/LK3OccAlsvjWGSt")
         msg = "\n".join(msg_list)
         return msg
 
