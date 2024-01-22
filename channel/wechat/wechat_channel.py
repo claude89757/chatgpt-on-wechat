@@ -129,6 +129,7 @@ def create_loop_task():
                             if not is_send_msg_list:
                                 # 首次启动
                                 pass
+                                is_send_msg_list.append(msg)
                             else:
                                 # 非首次启动
                                 print(f"{now} sending {msg}")
