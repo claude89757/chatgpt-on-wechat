@@ -314,6 +314,16 @@ class TencentDocs(object):
 
         up_for_send_msg_list = []
         for court_name, time_slot_list in court_free_time_infos.items():
+            if court_name == "香蜜电话":
+                now = datetime.datetime.now()
+                if now.hour >= 12:
+                    print("It's past noon.")
+                else:
+                    # 未到中午，忽略
+                    continue
+            else:
+                pass
+
             merged_time_slot_list = merge_time_ranges(time_slot_list)
             slot_msg_list = []
             for slot in merged_time_slot_list:
