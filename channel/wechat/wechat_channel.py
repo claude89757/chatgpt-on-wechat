@@ -126,9 +126,14 @@ def create_loop_task():
                         if msg in is_send_msg_list:
                             pass
                         else:
-                            print(f"{now} sending {msg}")
-                            itchat.send_msg(msg=msg, toUserName=chat_room['UserName'])
-                            is_send_msg_list.append(msg)
+                            if not is_send_msg_list:
+                                # 首次启动
+                                pass
+                            else:
+                                # 非首次启动
+                                print(f"{now} sending {msg}")
+                                itchat.send_msg(msg=msg, toUserName=chat_room['UserName'])
+                                is_send_msg_list.append(msg)
             except Exception as error:
                 print(f"looping error: {error}")
             time.sleep(120)
