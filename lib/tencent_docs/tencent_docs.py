@@ -314,7 +314,7 @@ class TencentDocs(object):
 
         up_for_send_msg_list = []
         for court_name, time_slot_list in court_free_time_infos.items():
-            if court_name == "香蜜电话":
+            if "香蜜电话" in court_name:
                 now = datetime.datetime.now()
                 if now.hour >= 12:
                     print("It's past noon.")
