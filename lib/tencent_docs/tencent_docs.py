@@ -328,6 +328,13 @@ class TencentDocs(object):
                 else:
                     # 未到10点，忽略
                     continue
+            elif "黄木岗" in court_name:
+                now = datetime.datetime.now()
+                if now.hour >= 10:
+                    print("It's past 10 am.")
+                else:
+                    # 未到10点，忽略
+                    continue
             else:
                 pass
 
