@@ -221,7 +221,8 @@ class TencentDocs(object):
                     msg_list.append(f"{time_slot}:　{court_name_msg}")
             else:
                 pass
-        msg_list.append(f"------\n订阅空场提醒短信: #小程序://网球场小助/bfI10uKdLapgVIl")
+        msg_list.append(f"------\n订阅空场提醒短信: #小程序://网球场小助/bfI10uKdLapgVIl"
+                        f"\n【推荐】穿线大师-沙师傅, 微信: zg872345302")
         msg = "\n".join(msg_list)
         return msg
 
