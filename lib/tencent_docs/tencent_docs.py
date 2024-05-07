@@ -205,9 +205,9 @@ class TencentDocs(object):
         msg_list.append(f"【{weekday} 网球场\U0001F3BE动态】 @{update_time}")
         for data in reversed(data_list):
             if data['row'] >= 2:
-                cell_data = data['textValues'][2]
+                cell_data = str(data['textValues'][2])
                 time_slot = time_slots[data['row'] - 2]
-                if "已过期" in cell_data or "赞助" in cell_data or "广告" in cell_data or "微信" in cell_data:
+                if "已过期" in cell_data or "广告" in cell_data or "微信" in cell_data:
                     pass
                 else:
                     court_name_list = []
