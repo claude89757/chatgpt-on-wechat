@@ -62,8 +62,6 @@ class ChatGPTBot(Bot, OpenAIImage):
                 reply = Reply(ReplyType.INFO, "配置已更新")
             if reply:
                 return reply
-            session = self.sessions.session_query(query, session_id)
-            logger.debug("[CHATGPT] session query={}".format(session.messages))
 
             api_key = context.get("openai_api_key")
             model = context.get("gpt_model")
@@ -71,10 +69,23 @@ class ChatGPTBot(Bot, OpenAIImage):
             if model:
                 new_args = self.args.copy()
                 new_args["model"] = model
-            # if context.get('stream'):
-            #     # reply in stream
-            #     return self.reply_text_stream(query, new_query, session_id)
 
+            # 问题类型分类
+            logger.info(f"1. what kind of query for: {query}")
+
+            new_query = f"""任务要求：对[当前问题]进行意图分类，严格按照[意图分类]和[回答示例]回答, 不需要解释。
+当前问题：{query}
+已知的场地简称：大沙河、深圳湾、香蜜、金地、威新、网羽、黄木岗、简上、深云、莲花、华侨城、北站、泰尼斯、总裁、梅林、山花
+注意事项：可能查询不包含场地简称
+意图分类：查询空场信息|查询场地信息|其他闲聊
+问题示例1：明天哪里还有场？大沙河还有场么？威新有场？明晚哪里还有空场么？今晚有空场么？
+回答示例1: 查询空场信息
+问题示例2：怎么订深圳湾？简上的预定方式？深圳湾的小程序是哪个?场地怎么预定？怎么订场？
+回答示例2: 查询场地信息
+问题示例3: 你是机器人么？你能干什么？
+回答示例3: 其他闲聊"""
+            session = self.sessions.session_query(new_query, session_id)
+            logger.debug("[CHATGPT] session query={}".format(session.messages))
             reply_content = self.reply_text(session, api_key, args=new_args)
             logger.debug(
                 "[CHATGPT] new_query={}, session_id={}, reply_cont={}, completion_tokens={}".format(
@@ -84,6 +95,31 @@ class ChatGPTBot(Bot, OpenAIImage):
                     reply_content["completion_tokens"],
                 )
             )
+
+            if reply_content == "查询空场信息":
+                logger.info(f"2. query for free courts: {query}")
+                reply_content["content"] = "深圳热门网球场实时动态\nhttps://docs.qq.com/sheet/DTkxyc09ZQmRuYWVk?tab=BB08J2"
+            elif reply_content == "查询场地信息":
+                logger.info(f"2. query for court infos: {query}")
+                reply_content["content"] = "深圳热门网球场预定方式\nhttps://docs.qq.com/sheet/DTkxyc09ZQmRuYWVk?tab=u9u8hz"
+            else:
+                # 其他闲聊
+                self.sessions.clear_all_session()
+                session = self.sessions.session_query(query, session_id)
+                logger.debug("[CHATGPT] session query={}".format(session.messages))
+                new_args = None
+                if model:
+                    new_args = self.args.copy()
+                    new_args["model"] = model
+                reply_content = self.reply_text(session, api_key, args=new_args)
+                logger.debug(
+                    "[CHATGPT] new_query={}, session_id={}, reply_cont={}, completion_tokens={}".format(
+                        session.messages,
+                        session_id,
+                        reply_content["content"],
+                        reply_content["completion_tokens"],
+                    )
+                )
             if reply_content["completion_tokens"] == 0 and len(reply_content["content"]) > 0:
                 reply = Reply(ReplyType.ERROR, reply_content["content"])
             elif reply_content["completion_tokens"] > 0:

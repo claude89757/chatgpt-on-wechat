@@ -52,7 +52,7 @@ class Hello(Plugin):
             # 生成一个0到1之间的随机浮点数
             rand_num = random.random()
             # 判断随机数
-            if rand_num < 0.01:  # 有100分之一的概率进入这个分支
+            if rand_num < 0.05:  # 有100分之一的概率进入这个分支
                 print("进入分支1: 获得VIP一个月")
                 reply = Reply()
                 reply.type = ReplyType.TEXT
@@ -64,19 +64,19 @@ class Hello(Plugin):
                 e_context["reply"] = reply
                 e_context.action = EventAction.BREAK  # 事件结束，进入默认处理逻辑，一般会覆写reply
                 return
-            elif rand_num < 0.2:  # 接下来有29%的概率（累计到30%）进入这个分支
+            elif rand_num < 0.1:  # 接下来有29%的概率（累计到30%）进入这个分支
                 print("进入分支2: 随机Tips")
                 e_context["context"].type = ContextType.TEXT
                 e_context["context"].content = f"请你随机介绍一个简短的网球的小知识"
                 e_context.action = EventAction.BREAK  # 事件结束，进入默认处理逻辑
                 return
-            elif rand_num < 0.3:  # 接下来有29%的概率（累计到30%）进入这个分支
+            elif rand_num < 0.2:  # 接下来有29%的概率（累计到30%）进入这个分支
                 print("进入分支2: 随机Tips")
                 e_context["context"].type = ContextType.TEXT
                 e_context["context"].content = f"请你随机介绍一个简短的提升网球水平的小知识"
                 e_context.action = EventAction.BREAK  # 事件结束，进入默认处理逻辑
                 return
-            else:  # 剩下的概率（70%）进入这个分支
+            else:  # 剩下的概率进入这个分支
                 print("进入分支3: 发送网球场动态")
                 docs = get_docs_operator()
                 court_msg = docs.get_today_court_msg()  # 获取当日网球场状态
