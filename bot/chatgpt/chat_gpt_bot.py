@@ -96,14 +96,15 @@ class ChatGPTBot(Bot, OpenAIImage):
                 )
             )
 
-            if reply_content == "查询空场信息":
+            if reply_content["content"] == "查询空场信息":
                 logger.info(f"2. query for free courts: {query}")
                 reply_content["content"] = "深圳热门网球场实时动态\nhttps://docs.qq.com/sheet/DTkxyc09ZQmRuYWVk?tab=BB08J2"
-            elif reply_content == "查询场地信息":
+            elif reply_content["content"] == "查询场地信息":
                 logger.info(f"2. query for court infos: {query}")
                 reply_content["content"] = "深圳热门网球场预定方式\nhttps://docs.qq.com/sheet/DTkxyc09ZQmRuYWVk?tab=u9u8hz"
             else:
                 # 其他闲聊
+                logger.info(f"3. query for chat: {query}")
                 self.sessions.clear_all_session()
                 session = self.sessions.session_query(query, session_id)
                 logger.debug("[CHATGPT] session query={}".format(session.messages))
