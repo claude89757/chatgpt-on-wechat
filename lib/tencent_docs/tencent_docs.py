@@ -222,7 +222,7 @@ class TencentDocs(object):
             else:
                 pass
         msg_list.append(f"------\n订阅空场提醒短信: #小程序://网球场小助/bfI10uKdLapgVIl"
-                        f"\n【推荐】穿线大师-沙师傅, 微信: zg872345302")
+                        f"\n西丽穿线 | 立等可取\n30元/支 | 群内联系")
         msg = "\n".join(msg_list)
         return msg
 
