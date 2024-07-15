@@ -10,6 +10,7 @@ import os
 import datetime
 import requests
 import json
+import random
 
 
 COLUMN = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V',
@@ -207,7 +208,7 @@ class TencentDocs(object):
             if data['row'] >= 2:
                 cell_data = str(data['textValues'][2])
                 time_slot = time_slots[data['row'] - 2]
-                if "已过期" in cell_data or "赞助" in cell_data or "穿线" in cell_data:
+                if "已过期" in cell_data or "赞助" in cell_data or "拉线" in cell_data or "广告" in cell_data:
                     pass
                 else:
                     court_name_list = []
@@ -221,8 +222,14 @@ class TencentDocs(object):
                     msg_list.append(f"{time_slot}:　{court_name_msg}")
             else:
                 pass
-        msg_list.append(f"------\n订阅空场提醒短信: #小程序://网球场小助/bfI10uKdLapgVIl"
-                        f"\n西丽穿线 | 立等可取\n30元/支 | 群内联系")
+        rand_num = random.random()
+        # 判断随机数
+        if rand_num < 0.3:  # 有30%的概率进入这个分支
+            msg_list.append(f"------\n订阅空场提醒短信: #小程序://网球场小助/bfI10uKdLapgVIl"
+                            f"------\n西丽穿线 | 立等可取\n30元/支 | 群内联系")
+        else:
+            msg_list.append(f"------\n订阅空场提醒短信: #小程序://网球场小助/bfI10uKdLapgVIl"
+                            f"------\n短信提醒，优先通知\n欢迎赞助小助手(*^▽^*)")
         msg = "\n".join(msg_list)
         return msg
 
