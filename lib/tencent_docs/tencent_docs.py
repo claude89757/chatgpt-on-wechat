@@ -185,7 +185,7 @@ class TencentDocs(object):
             if data['row'] >= 2:
                 cell_data = data['textValues'][1]
                 time_slot = time_slots[data['row']-2]
-                if "已过期" in cell_data or "赞助" in cell_data or "穿线" in cell_data:
+                if "已过期" in cell_data or "赞助" in cell_data or "穿线" in cell_data or "广告" in cell_data:
                     pass
                 else:
                     court_name_list = []
@@ -224,7 +224,7 @@ class TencentDocs(object):
                 pass
         rand_num = random.random()
         # 判断随机数
-        if rand_num < 0.3:  # 有30%的概率进入这个分支
+        if rand_num < 0.4:  # 有30%的概率进入这个分支
             msg_list.append(f"------\n订阅空场提醒短信: #小程序://网球场小助/bfI10uKdLapgVIl"
                             f"------\n西丽穿线 | 立等可取\n30元/支 | 群内联系")
         else:
@@ -269,7 +269,7 @@ class TencentDocs(object):
             if data['row'] >= 2:
                 cell_data = data['textValues'][1]
                 time_slot = time_slots[data['row'] - 2]
-                if "已过期" in cell_data or "赞助" in cell_data or "穿线" in cell_data:
+                if "已过期" in cell_data or "赞助" in cell_data or "穿线" in cell_data or "广告" in cell_data:
                     pass
                 else:
                     court_name_list = []
@@ -298,7 +298,7 @@ class TencentDocs(object):
             if data['row'] >= 2:
                 cell_data = data['textValues'][2]
                 time_slot = time_slots[data['row'] - 2]
-                if "已过期" in cell_data or "赞助" in cell_data or "穿线" in cell_data:
+                if "已过期" in cell_data or "赞助" in cell_data or "穿线" in cell_data or "广告" in cell_data:
                     pass
                 else:
                     court_name_list = []
