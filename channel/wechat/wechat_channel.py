@@ -105,6 +105,35 @@ def qrCallback(uuid, status, qrcode):
         qr.print_ascii(invert=True)
 
 
+def get_bing_news_msg(query: str) -> list:
+    """
+    get data from bing
+    This sample makes a call to the Bing Web Search API with a query and returns relevant web search.
+    Documentation: https://docs.microsoft.com/en-us/bing/search-apis/bing-web-search/overview
+    """
+    # Add your Bing Search V7 subscription key and endpoint to your environment variables.
+    news_api_key = conf().get("bing_subscription_key", "")
+    endpoint = "https://api.bing.microsoft.com/v7.0/search"
+
+    # Construct a request
+    mkt = 'zh-HK'
+    params = {'q': query, 'mkt': mkt, 'answerCount': 5, 'promote': 'News', 'freshness': 'Day'}
+    headers = {'Ocp-Apim-Subscription-Key': news_api_key}
+
+    # Call the API
+    try:
+        response = requests.get(endpoint, headers=headers, params=params, timeout=60)
+        response.raise_for_status()
+
+        print(response.headers)
+        # pprint(response.json())
+        data = response.json()
+
+        return data['news']['value']
+    except Exception as error:
+        return [{"name": f"Ops, 我崩溃了: {error}", "url": "？"}]
+
+
 def create_loop_task():
     """
     创建一个循环任务，用于定时发送消息到部分群聊
@@ -114,10 +143,17 @@ def create_loop_task():
     def timed_loop_task():
         # 开始循环
         is_send_msg_list = []
+        sent_8am = False
+        sent_6pm = False
+        old_news_list = []
         while True:
+            # 查询网球场状态
             now = datetime.datetime.now().strftime("%Y/%m/%d %H:%M:%S")
             chat_rooms = itchat.get_chatrooms(update=True, contactOnly=True)
-            print(f"looping chat_rooms: {chat_rooms}")
+            print(f"chat_rooms:---------------------------------------")
+            for chat_room in chat_rooms:
+                print(chat_room)
+            print(f"chat_rooms:---------------------------------------")
             try:
                 docs = get_docs_operator()
                 for chat_room in chat_rooms:
@@ -137,6 +173,51 @@ def create_loop_task():
                                 is_send_msg_list.append(msg)
             except Exception as error:
                 print(f"looping error: {error}")
+
+            # 查询每日新闻
+            current_time = datetime.datetime.now()
+            current_hour = current_time.hour
+            today = datetime.datetime.now()
+            date_str = today.strftime("%m月%d日")
+            weekday_str = today.strftime("%A")
+            weekday_dict = {'Monday': '星期一', 'Tuesday': '星期二', 'Wednesday': '星期三',
+                            'Thursday': '星期四', 'Friday': '星期五', 'Saturday': '星期六', 'Sunday': '星期日'}
+            weekday_cn = weekday_dict[weekday_str]
+            # 检查是否是早上8点或18点，并且还未发送消息
+            if current_hour in [8, 18] and (not sent_8am or sent_6pm):
+                # 查询新闻
+                news_list = get_bing_news_msg(query='网球')
+                # 组合消息
+                msg_list = []
+                for news_data in news_list:
+                    print(news_data)
+                    if news_data['name'] in old_news_list:
+                        pass
+                    else:
+                        msg_list.append(f"{news_data['name']}")
+                        msg_list.append(f"{news_data.get('url')}\n")
+                        old_news_list.append(news_data['name'])
+                if current_hour == 8:
+                    first_line = f"【每日🎾】 早安 {weekday_cn} {date_str} \n------"
+                else:
+                    first_line = f"【每日🎾】 午安 {weekday_cn} {date_str} \n------"
+                if msg_list:
+                    msg_list.insert(0, first_line)
+                else:
+                    msg_list.append(first_line)
+                    msg_list.append("好像没什么新闻o(╥﹏╥)o")
+                msg = '\n'.join(msg_list)
+                for chat_room in chat_rooms:
+                    itchat.send_msg(msg=msg, toUserName=chat_room['UserName'])
+
+            # 每天重置发送状态
+            if current_hour == 0:
+                is_send_msg_list.clear()
+                old_news_list.clear()
+                sent_8am = False
+                sent_6pm = False
+
+            # 循环等待时间
             time.sleep(120)
 
     # Start the thread
