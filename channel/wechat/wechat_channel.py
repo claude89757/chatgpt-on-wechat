@@ -112,13 +112,16 @@ def get_bing_news_msg(query: str) -> list:
     Documentation: https://docs.microsoft.com/en-us/bing/search-apis/bing-web-search/overview
     """
     # Add your Bing Search V7 subscription key and endpoint to your environment variables.
-    news_api_key = conf().get("bing_subscription_key", "")
+    bing_subscription_key = os.environ.get("BING_KEY")
+    if not bing_subscription_key:
+        raise Exception("no BING_KEY!!!")
+
     endpoint = "https://api.bing.microsoft.com/v7.0/search"
 
     # Construct a request
     mkt = 'zh-HK'
     params = {'q': query, 'mkt': mkt, 'answerCount': 5, 'promote': 'News', 'freshness': 'Day'}
-    headers = {'Ocp-Apim-Subscription-Key': news_api_key}
+    headers = {'Ocp-Apim-Subscription-Key': bing_subscription_key}
 
     # Call the API
     try:
