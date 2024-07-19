@@ -143,8 +143,9 @@ def create_loop_task():
     def timed_loop_task():
         # 开始循环
         is_send_msg_list = []
-        sent_8am = False
-        sent_6pm = False
+        sent_6am = False
+        sent_12am = False
+        sent_18am = False
         old_news_list = []
         while True:
             # 查询网球场状态
@@ -184,7 +185,8 @@ def create_loop_task():
                             'Thursday': '星期四', 'Friday': '星期五', 'Saturday': '星期六', 'Sunday': '星期日'}
             weekday_cn = weekday_dict[weekday_str]
             # 检查是否是早上8点或18点，并且还未发送消息
-            if current_hour in [8, 12, 18] and (not sent_8am or sent_6pm):
+            if (current_hour == 6 and not sent_6am) or (current_hour == 12 and not sent_12am) \
+                    or (current_hour == 18 and not sent_18am):
                 # 查询新闻
                 news_list = get_bing_news_msg(query='网球')
                 # 组合消息
@@ -198,9 +200,14 @@ def create_loop_task():
                         msg_list.append(f"{news_data.get('url')}\n")
                         old_news_list.append(news_data['name'])
                 if current_hour == 8:
-                    first_line = f"【每日🎾】 早安 {weekday_cn} {date_str} \n------"
+                    first_line = f"【每日🎾】 早上好 {weekday_cn} {date_str} \n------"
+                    sent_6am = True
+                elif current_hour == 12:
+                    first_line = f"【每日🎾】 中午好 {weekday_cn} {date_str} \n------"
+                    sent_12am = True
                 else:
-                    first_line = f"【每日🎾】 午安 {weekday_cn} {date_str} \n------"
+                    first_line = f"【每日🎾】 下午好 {weekday_cn} {date_str} \n------"
+                    sent_18am = True
                 if msg_list:
                     msg_list.insert(0, first_line)
                 else:
@@ -214,8 +221,9 @@ def create_loop_task():
             if current_hour == 0:
                 is_send_msg_list.clear()
                 old_news_list.clear()
-                sent_8am = False
-                sent_6pm = False
+                sent_6am = False
+                sent_12am = False
+                sent_18am = False
 
             # 循环等待时间
             time.sleep(120)
