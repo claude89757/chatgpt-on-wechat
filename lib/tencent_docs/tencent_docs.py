@@ -225,10 +225,10 @@ class TencentDocs(object):
         rand_num = random.random()
         # 判断随机数
         if rand_num < 0.4:  # 有30%的概率进入这个分支
-            msg_list.append(f"------\n订阅空场提醒短信: #小程序://网球场小助/bfI10uKdLapgVIl"
+            msg_list.append(f"------\n订阅空场提醒短信: #小程序://网球场小助/bfI10uKdLapgVIl\n"
                             f"------\n西丽穿线 | 立等可取\n30元/支 | 群内联系")
         else:
-            msg_list.append(f"------\n订阅空场提醒短信: #小程序://网球场小助/bfI10uKdLapgVIl"
+            msg_list.append(f"------\n订阅空场提醒短信: #小程序://网球场小助/bfI10uKdLapgVIl\n"
                             f"------\n短信提醒，优先通知\n欢迎赞助小助手(*^▽^*)")
         msg = "\n".join(msg_list)
         return msg
