@@ -184,7 +184,7 @@ def create_loop_task():
                             'Thursday': '星期四', 'Friday': '星期五', 'Saturday': '星期六', 'Sunday': '星期日'}
             weekday_cn = weekday_dict[weekday_str]
             # 检查是否是早上8点或18点，并且还未发送消息
-            if current_hour in [8, 18] and (not sent_8am or sent_6pm):
+            if current_hour in [8, 12, 18] and (not sent_8am or sent_6pm):
                 # 查询新闻
                 news_list = get_bing_news_msg(query='网球')
                 # 组合消息
