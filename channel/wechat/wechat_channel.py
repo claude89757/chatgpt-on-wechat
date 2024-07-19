@@ -151,6 +151,7 @@ def create_loop_task():
         sent_18am = False
         old_news_list = []
         while True:
+            print("start loop task...")
             # 查询网球场状态
             now = datetime.datetime.now().strftime("%Y/%m/%d %H:%M:%S")
             chat_rooms = itchat.get_chatrooms(update=True, contactOnly=True)
@@ -229,6 +230,7 @@ def create_loop_task():
                 sent_18am = False
 
             # 循环等待时间
+            print("sleeping for 120s")
             time.sleep(120)
 
     # Start the thread
