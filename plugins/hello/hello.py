@@ -1,5 +1,7 @@
 # encoding:utf-8
 import random
+import datetime
+import requests
 
 import plugins
 from bridge.context import ContextType
@@ -9,6 +11,58 @@ from common.log import logger
 from plugins import *
 from config import conf
 from lib.tencent_docs.tencent_docs import get_docs_operator
+
+
+def load_last_sent_message():
+    """从本地文件加载最后一次发送的消息"""
+    try:
+        with open("last_sent_message.txt", "r") as file:
+            return file.read()
+    except FileNotFoundError:
+        return None  # 如果文件不存在，返回None
+
+
+def clear_last_sent_message():
+    """清空保存的最后一次发送的消息文件"""
+    with open("last_sent_message.txt", "w") as file:
+        file.write("")  # 写入空字符串以清空文件内容
+
+
+def get_realtime_tennis_court_msg(last_sent_msg: str):
+    """
+    查询最新发送的网球场的状态
+    """
+    try:
+        place_name = last_sent_msg.strip('【').split('】')[0]
+        date = f"{datetime.datetime.now().year}-{last_sent_msg.split('(')[1].split(')')[0]}"
+        start_time = last_sent_msg.split()[1].split('-')[0]
+        end_time = last_sent_msg.split()[1].split('-')[1]
+        url = "https://1300108802-gl3lbnqt81-gz.scf.tencentcs.com"
+        data = {
+            'place_name': place_name,
+            'date': date,
+            'start_time': start_time,
+            'end_time': end_time
+        }
+        headers = {'Content-Type': 'application/json'}
+        response = requests.post(url, data=json.dumps(data), headers=headers)
+        print(response.text)
+        if response.status_code == 200:
+            res = response.json()
+            if res.get('code') == 0:
+                court_msg = res['data']
+                if "已被预定" in court_msg:
+                    clear_last_sent_message()
+                else:
+                    pass
+                return court_msg
+            else:
+                return "Ops, 我脑子烧了1"
+        else:
+            return "Ops, 我脑子烧了2"
+    except requests.RequestException as error:
+        print(error)
+        return "Ops, 我脑子烧了3"
 
 
 @plugins.register(
@@ -52,40 +106,39 @@ class Hello(Plugin):
             # 生成一个0到1之间的随机浮点数
             rand_num = random.random()
             # 判断随机数
-            if rand_num < 0.05:  # 有100分之一的概率进入这个分支
-                print("进入分支1: 获得VIP一个月")
-                reply = Reply()
-                reply.type = ReplyType.TEXT
-                msg: ChatMessage = e_context["context"]["msg"]
-                if e_context["context"]["isgroup"]:
-                    reply.content = f"恭喜 {msg.actual_user_nickname} 拍出了一份奖品: 【一个月小助手VIP】, 请联系Tt获取"
-                else:
-                    reply.content = f"恭喜 {msg.from_user_nickname} 拍出了一份奖品: 【一个月小助手VIP】, 请联系Tt获取"
-                e_context["reply"] = reply
-                e_context.action = EventAction.BREAK  # 事件结束，进入默认处理逻辑，一般会覆写reply
-                return
-            elif rand_num < 0.1:  # 接下来有29%的概率（累计到30%）进入这个分支
-                print("进入分支2: 随机Tips")
+            if rand_num < 0.1:  # 接下来有10%的概率进入这个分支
+                print("进入分支1: 随机Tips")
                 e_context["context"].type = ContextType.TEXT
                 e_context["context"].content = f"请你随机介绍一个简短的网球的小知识"
                 e_context.action = EventAction.BREAK  # 事件结束，进入默认处理逻辑
                 return
-            elif rand_num < 0.2:  # 接下来有29%的概率（累计到30%）进入这个分支
+            elif rand_num < 0.2:  # 接下来有10%的概率进入这个分支
                 print("进入分支2: 随机Tips")
                 e_context["context"].type = ContextType.TEXT
                 e_context["context"].content = f"请你随机介绍一个简短的提升网球水平的小知识"
                 e_context.action = EventAction.BREAK  # 事件结束，进入默认处理逻辑
                 return
             else:  # 剩下的概率进入这个分支
-                print("进入分支3: 发送网球场动态")
-                docs = get_docs_operator()
-                court_msg = docs.get_today_court_msg()  # 获取当日网球场状态
-                reply = Reply()
-                reply.type = ReplyType.TEXT
-                reply.content = court_msg
-                e_context["reply"] = reply
-                e_context.action = EventAction.BREAK_PASS  # 事件结束，进入默认处理逻辑，一般会覆写reply
-                return
+                last_sent_msg = load_last_sent_message()
+                if last_sent_msg:
+                    print("进入分支4: 查询最新发送的场地的实时状态")
+                    court_msg = get_realtime_tennis_court_msg(last_sent_msg)  # 获取网球场实时状态
+                    reply = Reply()
+                    reply.type = ReplyType.TEXT
+                    reply.content = court_msg
+                    e_context["reply"] = reply
+                    e_context.action = EventAction.BREAK_PASS  # 事件结束，进入默认处理逻辑，一般会覆写reply
+                    return
+                else:
+                    print("进入分支3: 发送网球场动态")
+                    docs = get_docs_operator()
+                    court_msg = docs.get_today_court_msg()  # 获取当日网球场状态
+                    reply = Reply()
+                    reply.type = ReplyType.TEXT
+                    reply.content = court_msg
+                    e_context["reply"] = reply
+                    e_context.action = EventAction.BREAK_PASS  # 事件结束，进入默认处理逻辑，一般会覆写reply
+                    return
 
         content = e_context["context"].content
         logger.debug("[Hello] on_handle_context. content: %s" % content)

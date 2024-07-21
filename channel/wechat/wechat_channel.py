@@ -137,6 +137,21 @@ def get_bing_news_msg(query: str) -> list:
         return [{"name": f"Ops, 我崩溃了: {error}", "url": "？"}]
 
 
+def save_message_to_file(message):
+    """将消息保存到本地文件中"""
+    with open("last_sent_message.txt", "w") as file:
+        file.write(message)
+
+
+def load_last_sent_message():
+    """从本地文件加载最后一次发送的消息"""
+    try:
+        with open("last_sent_message.txt", "r") as file:
+            return file.read()
+    except FileNotFoundError:
+        return None  # 如果文件不存在，返回None
+
+
 def create_loop_task():
     """
     创建一个循环任务，用于定时发送消息到部分群聊
@@ -176,12 +191,14 @@ def create_loop_task():
                                 print(f"{now} sending {msg}")
                                 itchat.send_msg(msg=msg, toUserName=chat_room['UserName'])
                                 is_send_msg_list.append(msg)
+                                save_message_to_file(msg)  # 保存消息到文件
             except Exception as error:
                 print(f"looping error: {error}")
 
             # 查询每日新闻
             current_time = datetime.datetime.now()
             current_hour = current_time.hour
+            current_minute = current_time.minute
             today = datetime.datetime.now()
             date_str = today.strftime("%m月%d日")
             weekday_str = today.strftime("%A")
@@ -222,7 +239,7 @@ def create_loop_task():
                     itchat.send_msg(msg=msg, toUserName=chat_room['UserName'])
 
             # 每天重置发送状态
-            if current_hour == 0:
+            if current_hour == 0 and current_minute <= 5:
                 is_send_msg_list.clear()
                 old_news_list.clear()
                 sent_6am = False
