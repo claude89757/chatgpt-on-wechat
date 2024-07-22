@@ -59,8 +59,8 @@ class TencentDocs(object):
         self.headers = {"Content-Type": "application/json"}
         # 授权码，有效时间为5分钟，且只能使用一次
         client_id = '62daceac49b5443ca98e27dd0f5fb464'
-        client_secret = os.environ.get('TENCENT_DOCS_SECRET')
-        refresh_token = os.environ.get('TENCENT_DOCS_REFRESH_TOKEN')
+        client_secret = os.environ.get('TENCENT_DOCS_SECRET', 'IQHzDbxzVl4PsiOKsSdvaaQ9imwQm6yn')
+        refresh_token = os.environ.get('TENCENT_DOCS_REFRESH_TOKEN', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJjbHQiOiI2MmRhY2VhYzQ5YjU0NDNjYTk4ZTI3ZGQwZjVmYjQ2NCIsInR5cCI6MiwidGV4cCI6MjU5MjAwMDAwMDAwMDAwMCwiZXhwIjoxNzQwNTQyOTU4LjE1NzI2NjksImlhdCI6MTcwOTAwNjk1OC4xNTcyNjY5LCJzdWIiOiJjZTM4ZjM1ZWMzNTE0NTk0OGZiZmJhZWRiMDI2ZDAxNCJ9.LaoMmS7evHsTFz5a3F4E2VYmEvs495wCE7rxR1xvzIo')
         if not token:
             token = TencentDocs.get_refresh_token(client_id, client_secret, refresh_token)
         else:
@@ -355,6 +355,15 @@ class TencentDocs(object):
             up_for_send_msg_list.append(msg)
         return up_for_send_msg_list
 
+    def get_subscription_msg(self):
+        """
+        查询订阅列表
+        """
+        data_list = self.get_row_data("300000000$NLrsOYBdnaed", "BB08J2", "B,H")
+        print(data_list)
+
+
+
 
 def merge_time_ranges(data):
     """
@@ -396,3 +405,4 @@ def merge_time_ranges(data):
 # Testing
 if __name__ == '__main__':
     docs = TencentDocs(token="")
+
