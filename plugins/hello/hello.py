@@ -35,34 +35,42 @@ def get_realtime_tennis_court_msg(last_sent_msg: str):
     try:
         place_name = last_sent_msg.strip('【').split('】')[0]
         date = f"{datetime.datetime.now().year}-{last_sent_msg.split('(')[1].split(')')[0]}"
-        start_time = last_sent_msg.split()[1].split('-')[0]
-        end_time = last_sent_msg.split()[1].split('-')[1]
-        url = "https://1300108802-gl3lbnqt81-gz.scf.tencentcs.com"
-        data = {
-            'place_name': place_name,
-            'date': date,
-            'start_time': start_time,
-            'end_time': end_time
-        }
-        headers = {'Content-Type': 'application/json'}
-        response = requests.post(url, data=json.dumps(data), headers=headers)
-        print(response.text)
-        if response.status_code == 200:
-            res = response.json()
-            if res.get('code') == 0:
-                court_msg = res['data']
-                if "已被预定" in court_msg:
-                    clear_last_sent_message()
+        msg_list = []
+        error_msg_list = []
+        for time_range_str in last_sent_msg.split()[1].split('|'):
+            start_time = time_range_str.split('-')[0]
+            end_time = time_range_str.split('-')[1]
+            url = "https://1300108802-gl3lbnqt81-gz.scf.tencentcs.com"
+            data = {
+                'place_name': place_name,
+                'date': date,
+                'start_time': start_time,
+                'end_time': end_time
+            }
+            headers = {'Content-Type': 'application/json'}
+            response = requests.post(url, data=json.dumps(data), headers=headers)
+            print(response.text)
+            if response.status_code == 200:
+                res = response.json()
+                if res.get('code') == 0:
+                    court_msg = res['data']
+                    if "已被预定" in court_msg:
+                        clear_last_sent_message()
+                    else:
+                        pass
+                    msg_list.append(court_msg)
                 else:
-                    pass
-                return court_msg
+                    error_msg_list.append("Ops, CPU烧了o(╥﹏╥)o")
             else:
-                return "Ops, 我脑子烧了1"
+                error_msg_list.append(f"错误代码: {response.status_code}")
+        if msg_list:
+            msg = "\n".join(msg_list)
         else:
-            return "Ops, 我脑子烧了2"
+            msg = "\n".join(error_msg_list)
+        return msg
     except requests.RequestException as error:
         print(error)
-        return "Ops, 我脑子烧了3"
+        return "Ops, 出错了o(╥﹏╥)o"
 
 
 @plugins.register(
