@@ -220,7 +220,7 @@ def create_loop_task():
                         msg_list.append(f"{news_data['name']}")
                         msg_list.append(f"{news_data.get('url')}\n")
                         old_news_list.append(news_data['name'])
-                if current_hour == 8:
+                if current_hour == 6:
                     first_line = f"【每日🎾】 早上好 {weekday_cn} {date_str} \n------"
                     sent_6am = True
                 elif current_hour == 12:
