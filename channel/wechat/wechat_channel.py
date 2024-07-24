@@ -239,7 +239,7 @@ def create_loop_task():
                     itchat.send_msg(msg=msg, toUserName=chat_room['UserName'])
 
             # 每天重置发送状态
-            if current_hour == 0 and current_minute <= 5:
+            if current_hour == 0 and current_minute <= 2:
                 is_send_msg_list.clear()
                 old_news_list.clear()
                 sent_6am = False
