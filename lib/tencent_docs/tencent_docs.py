@@ -324,24 +324,45 @@ class TencentDocs(object):
         for court_name, time_slot_list in court_free_time_infos.items():
             if "香蜜电话" in court_name:
                 now = datetime.datetime.now()
-                if now.hour >= 12:
-                    print("It's past noon.")
+                if now.hour >= 11:
+                    pass
                 else:
                     # 未到中午，忽略
                     continue
             elif "香蜜体育" in court_name:
                 now = datetime.datetime.now()
                 if now.hour >= 10:
-                    print("It's past 10 am.")
+                    pass
                 else:
                     # 未到10点，忽略
                     continue
             elif "黄木岗" in court_name:
                 now = datetime.datetime.now()
                 if now.hour >= 10:
-                    print("It's past 10 am.")
+                    pass
                 else:
                     # 未到10点，忽略
+                    continue
+            elif "华侨城" in court_name:
+                now = datetime.datetime.now()
+                if now.hour >= 8:
+                    pass
+                else:
+                    # 未到8点，忽略
+                    continue
+            elif "网羽中心" in court_name:
+                now = datetime.datetime.now()
+                if now.hour >= 8:
+                    pass
+                else:
+                    # 未到8点，忽略
+                    continue
+            elif "莲花体育" in court_name:
+                now = datetime.datetime.now()
+                if now.hour >= 10:
+                    pass
+                else:
+                    # 未到8点，忽略
                     continue
             else:
                 pass
@@ -361,8 +382,6 @@ class TencentDocs(object):
         """
         data_list = self.get_row_data("300000000$NLrsOYBdnaed", "BB08J2", "B,H")
         print(data_list)
-
-
 
 
 def merge_time_ranges(data):
