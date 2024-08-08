@@ -5,6 +5,7 @@ import time
 import openai
 import openai.error
 import requests
+import datetime
 
 from bot.bot import Bot
 from bot.chatgpt.chat_gpt_session import ChatGPTSession
@@ -63,6 +64,22 @@ class ChatGPTBot(Bot, OpenAIImage):
             if reply:
                 return reply
 
+            # 标记AI视频分析任务
+            if query == "动作分析" or query == "AI视频":
+                # 获取当前时间
+                current_time = datetime.datetime.now()
+                # 将当前时间格式化为字符串
+                time_string = current_time.strftime("%Y-%m-%d %H:%M:%S")
+                # 指定要写入的文件名
+                file_name = "trigger_ai_video_time"
+                # 将当前时间写入文件
+                with open(file_name, "w") as file:
+                    file.write(time_string)
+                print(f"当前时间 '{time_string}' 已写入到 '{file_name}' 文件中。")
+                reply = Reply(ReplyType.TEXT, "正在触发AI视频分析任务...")
+                return reply
+            else:
+                pass
             api_key = context.get("openai_api_key")
             model = context.get("gpt_model")
             new_args = None
