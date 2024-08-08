@@ -1,7 +1,7 @@
 # encoding:utf-8
 
 import time
-
+import os
 import openai
 import openai.error
 import requests
@@ -66,15 +66,37 @@ class ChatGPTBot(Bot, OpenAIImage):
 
             # 标记AI视频分析任务
             if query == "动作分析" or query == "AI视频":
+                # 指定要写入的文件名
+                file_name = "trigger_ai_video_time.txt"
+
+                # 检查文件是否存在
+                if os.path.exists(file_name):
+                    # 读取文件中的时间
+                    with open(file_name, "r") as file:
+                        file_content = file.read().strip()
+                        if file_content:
+                            # 将文件中的时间字符串转换为 datetime 对象
+                            last_trigger_time = datetime.datetime.strptime(file_content, "%Y-%m-%d %H:%M:%S")
+                            # 获取当前时间
+                            current_time = datetime.datetime.now()
+                            # 计算时间差
+                            time_difference = current_time - last_trigger_time
+
+                            # 如果时间差小于 3 分钟，则不回复
+                            if time_difference < datetime.timedelta(minutes=3):
+                                print("任务排队中...")
+                                reply = Reply(ReplyType.TEXT, "AI视频分析任务执行中，请稍等.")
+                                return reply
+
                 # 获取当前时间
                 current_time = datetime.datetime.now()
                 # 将当前时间格式化为字符串
                 time_string = current_time.strftime("%Y-%m-%d %H:%M:%S")
-                # 指定要写入的文件名
-                file_name = "trigger_ai_video_time"
+
                 # 将当前时间写入文件
                 with open(file_name, "w") as file:
                     file.write(time_string)
+
                 print(f"当前时间 '{time_string}' 已写入到 '{file_name}' 文件中。")
                 reply = Reply(ReplyType.TEXT, "正在触发AI视频分析任务...")
                 return reply
