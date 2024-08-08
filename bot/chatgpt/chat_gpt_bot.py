@@ -65,7 +65,7 @@ class ChatGPTBot(Bot, OpenAIImage):
                 return reply
 
             # 标记AI视频分析任务
-            if query == "动作分析" or query == "AI视频":
+            if query == "动作分析" or str(query).upper() == "AI视频" or query == "动作打分":
                 # 指定要写入的文件名
                 file_name = "trigger_ai_video_time.txt"
 
