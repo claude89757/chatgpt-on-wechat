@@ -69,7 +69,7 @@ class ChatGPTBot(Bot, OpenAIImage):
                 file_name = "trigger_ai_video_time.txt"
                 # 将当前时间写入文件
                 with open(file_name, "w") as file:
-                    file.write(str(context.kwargs))
+                    file.write(str(context.kwargs.get('msg').__str__))
                 print(f"'{context}' 已写入到 '{file_name}' 文件中。")
                 reply = Reply(ReplyType.TEXT, "正在触发AI视频分析任务...")
                 return reply
