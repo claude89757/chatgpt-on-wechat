@@ -69,13 +69,10 @@ class ChatGPTBot(Bot, OpenAIImage):
                 file_name = "trigger_ai_video_time.txt"
                 # 将当前时间写入文件
                 with open(file_name, "w") as file:
-                    from_user_nickname = context.kwargs.get('msg')['from_user_nickname']
-                    to_user_nickname = context.kwargs.get('msg')['to_user_nickname']
-                    self_display_name = context.kwargs.get('msg')['self_display_name']
                     json_data = {
-                        "from_user_nickname": from_user_nickname,
-                        "to_user_nickname": to_user_nickname,
-                        "self_display_name": self_display_name,
+                        "from_user_nickname": context.kwargs.get('msg').from_user_nickname,
+                        "to_user_nickname": context.kwargs.get('msg').to_user_nickname,
+                        "self_display_name": context.kwargs.get('msg').self_display_name,
                     }
                     file.write(json.dumps(json_data))
                 print(f"'{json_data}' 已写入到 '{file_name}' 文件中。")
