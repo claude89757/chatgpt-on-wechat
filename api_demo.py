@@ -7,7 +7,7 @@
 @Software: PyCharm
 """
 
-from flask import Flask, jsonify
+from flask import Flask, jsonify, request
 import os
 import json
 
@@ -51,6 +51,25 @@ def create_api_service(file_path, port=5000):
                 file.write("")
 
             return jsonify({"message": "File content cleared successfully"})
+
+        except Exception as e:
+            return jsonify({"error": str(e)}), 500
+
+    @app.route('/write_content', methods=['POST'])
+    def write_file_content():
+        try:
+            # 获取请求中的数据
+            data = request.get_json()
+            if 'content' not in data:
+                return jsonify({"error": "No content provided"}), 400
+
+            content = data['content']
+
+            # 写入文件内容
+            with open(file_path, 'w', encoding='utf-8') as file:
+                file.write(content)
+
+            return jsonify({"message": "File content written successfully"})
 
         except Exception as e:
             return jsonify({"error": str(e)}), 500
