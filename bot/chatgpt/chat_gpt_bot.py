@@ -88,7 +88,7 @@ class ChatGPTBot(Bot, OpenAIImage):
                             content = file.read()
                             # 检查是否包含 "RUNNING" 字符串
                             if "RUNNING" in content:
-                                reply = Reply(ReplyType.TEXT, "其他任务执行中，请稍等...")
+                                reply = Reply(ReplyType.TEXT, "其他任务执行中，请5~10分钟后重新触发Zacks")
                                 return reply
 
                 # 将当前时间和其他信息写入文件
