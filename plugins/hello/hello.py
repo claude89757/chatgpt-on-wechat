@@ -33,7 +33,7 @@ def get_realtime_tennis_court_msg(last_sent_msg: str):
     查询最新发送的网球场的状态
     """
     try:
-        place_name = last_sent_msg.strip('【').split('】')[0]
+        place_name = last_sent_msg.split('】')[0].split('【')[-1]
         date = f"{datetime.datetime.now().year}-{last_sent_msg.split('(')[1].split(')')[0]}"
         msg_list = []
         error_msg_list = []
