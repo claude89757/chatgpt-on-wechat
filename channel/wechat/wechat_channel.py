@@ -177,7 +177,7 @@ def create_loop_task():
             try:
                 docs = get_docs_operator()
                 for chat_room in chat_rooms:
-                    if chat_room['UserName'] in ["Zacks网球场预定小助手_2群", "Zacks网球场预定小助手"]:
+                    if chat_room['NickName'] in ["Zacks网球场预定小助手_2群", "Zacks网球场预定小助手"]:
                         up_for_send_msg = docs.get_up_for_send_msg_list()  # 获取当日网球场状态
                         for msg in up_for_send_msg:
                             if msg in is_send_msg_list:
@@ -189,7 +189,7 @@ def create_loop_task():
                                     is_send_msg_list.append(msg)
                                 else:
                                     # 非首次启动
-                                    print(f"{now} sending {msg} to {chat_room['UserName']}")
+                                    print(f"{now} sending {msg} to {chat_room['NickName']}")
                                     itchat.send_msg(msg=msg, toUserName=chat_room['UserName'])
                                     is_send_msg_list.append(msg)
                                     save_message_to_file(msg)  # 保存消息到文件
