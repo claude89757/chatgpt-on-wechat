@@ -67,10 +67,9 @@ class ChatGPTBot(Bot, OpenAIImage):
             if query == "动作分析" or str(query).upper() == "AI视频" or query == "动作打分" or query == "分析动作":
                 # 指定要写入的文件名
                 file_name = "trigger_ai_video_time.txt"
-                json_string = json.dumps(context)
                 # 将当前时间写入文件
                 with open(file_name, "w") as file:
-                    file.write(json_string)
+                    file.write(str(context.kwargs))
                 print(f"'{context}' 已写入到 '{file_name}' 文件中。")
                 reply = Reply(ReplyType.TEXT, "正在触发AI视频分析任务...")
                 return reply
