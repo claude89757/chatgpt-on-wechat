@@ -9,9 +9,9 @@
 
 from flask import Flask, jsonify
 import os
+import json
 
 app = Flask(__name__)
-
 
 def create_api_service(file_path, port=5000):
     """
@@ -32,14 +32,31 @@ def create_api_service(file_path, port=5000):
             with open(file_path, 'r', encoding='utf-8') as file:
                 content = file.read()
 
-            return jsonify({"content": content})
+            # 尝试解析JSON内容
+            try:
+                json_content = json.loads(content)
+            except json.JSONDecodeError:
+                return jsonify({"error": "File content is not valid JSON"}), 400
+
+            return jsonify({"content": json_content})
+
+        except Exception as e:
+            return jsonify({"error": str(e)}), 500
+
+    @app.route('/clear_content', methods=['POST'])
+    def clear_file_content():
+        try:
+            # 清空文件内容
+            with open(file_path, 'w', encoding='utf-8') as file:
+                file.write("")
+
+            return jsonify({"message": "File content cleared successfully"})
 
         except Exception as e:
             return jsonify({"error": str(e)}), 500
 
     # 启动Flask应用
     app.run(host='0.0.0.0', port=port)
-
 
 # 使用示例
 if __name__ == "__main__":
