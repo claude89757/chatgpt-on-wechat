@@ -1,5 +1,6 @@
 # encoding:utf-8
 
+import os
 import time
 import json
 import openai
@@ -67,7 +68,18 @@ class ChatGPTBot(Bot, OpenAIImage):
             if query == "动作分析" or str(query).upper() == "AI视频" or query == "动作打分" or query == "分析动作":
                 # 指定要写入的文件名
                 file_name = "trigger_ai_video_time.txt"
-                # 将当前时间写入文件
+
+                # 检查文件是否存在
+                if os.path.exists(file_name):
+                    # 读取文件内容
+                    with open(file_name, "r", encoding="utf-8") as file:
+                        content = file.read()
+                        # 检查是否包含 "RUNNING" 字符串
+                        if "RUNNING" in content.upper():
+                            reply = Reply(ReplyType.TEXT, "其他任务执行中，请排队稍等...")
+                            return reply
+
+                # 写入文件
                 with open(file_name, "w") as file:
                     json_data = {
                         "from_user_nickname": context.kwargs.get('msg').from_user_nickname,
