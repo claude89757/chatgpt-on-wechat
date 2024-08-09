@@ -6,6 +6,7 @@ import json
 import openai
 import openai.error
 import requests
+import datetime
 
 from bot.bot import Bot
 from bot.chatgpt.chat_gpt_session import ChatGPTSession
@@ -71,20 +72,33 @@ class ChatGPTBot(Bot, OpenAIImage):
 
                 # 检查文件是否存在
                 if os.path.exists(file_name):
-                    # 读取文件内容
-                    with open(file_name, "r", encoding="utf-8") as file:
-                        content = file.read()
-                        # 检查是否包含 "RUNNING" 字符串
-                        if "RUNNING" in content.upper():
-                            reply = Reply(ReplyType.TEXT, "其他任务执行中，请排队稍等...")
-                            return reply
+                    # 获取文件的最后修改时间
+                    last_modified_time = datetime.datetime.fromtimestamp(os.path.getmtime(file_name))
+                    current_time = datetime.datetime.now()
+                    time_diff = current_time - last_modified_time
 
-                # 写入文件
-                with open(file_name, "w") as file:
+                    # 如果文件的最后修改时间超过30分钟，则清空文件内容
+                    if time_diff > datetime.timedelta(minutes=30):
+                        with open(file_name, "w", encoding="utf-8") as file:
+                            file.write("")
+                        print(f"文件 '{file_name}' 超过30分钟未更新，已清空内容。")
+                    else:
+                        # 读取文件内容
+                        with open(file_name, "r", encoding="utf-8") as file:
+                            content = file.read()
+                            # 检查是否包含 "RUNNING" 字符串
+                            if "RUNNING" in content:
+                                reply = Reply(ReplyType.TEXT, "其他任务执行中，请稍等...")
+                                return reply
+
+                # 将当前时间和其他信息写入文件
+                with open(file_name, "w", encoding="utf-8") as file:
                     json_data = {
                         "from_user_nickname": context.kwargs.get('msg').from_user_nickname,
                         "to_user_nickname": context.kwargs.get('msg').to_user_nickname,
                         "self_display_name": context.kwargs.get('msg').self_display_name,
+                        "status": "RUNNING",
+                        "timestamp": datetime.datetime.now().isoformat()
                     }
                     file.write(json.dumps(json_data))
                 print(f"'{json_data}' 已写入到 '{file_name}' 文件中。")
