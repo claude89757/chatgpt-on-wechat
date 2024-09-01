@@ -1,5 +1,6 @@
 import os
 import time
+import openai
 from openai import AzureOpenAI
 
 
@@ -102,6 +103,10 @@ class AzureOpenAIAgent:
 
 # 使用示例
 if __name__ == "__main__":
-    agent = AzureOpenAIAgent("gpt-4o-mini")
-    response = agent.agent_question_analysis("大沙河在哪？")
-    print(response)
+    print(openai.RateLimitError)
+    try:
+        agent = AzureOpenAIAgent("gpt-4o-mini")
+        response = agent.agent_question_analysis("大沙河在哪？")
+        print(response)
+    except openai.RateLimitError:
+        print(123)
