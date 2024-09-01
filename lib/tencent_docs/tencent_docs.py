@@ -253,7 +253,7 @@ class TencentDocs(object):
                       ['08:00', '09:00'],
                       ['07:00', '08:00'], ]
 
-        push_courts = ["大沙河", "金地威新", "香蜜体育", "香蜜电话", "深圳湾", "黄木岗", "华侨城", "网羽中心", "莲花体育"]
+        push_courts = ["大沙河", "金地威新", "香蜜体育", "香蜜电话", "深圳湾", "黄木岗", "华侨城", "莲花体育"]
         # 获取当前日期
         weekday = datetime.datetime.today().weekday()
         if weekday == 5:
