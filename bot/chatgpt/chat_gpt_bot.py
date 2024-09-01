@@ -4,7 +4,7 @@ import os
 import time
 import json
 import openai
-from openai import OpenAI
+from openai import AzureOpenAI
 import datetime
 
 from bot.bot import Bot
@@ -22,7 +22,7 @@ from bot.chatgpt.azure_agent import AzureOpenAIAgent
 class ChatGPTBot(Bot):
     def __init__(self):
         # set the default api_key
-        self.client = OpenAI(api_key=conf().get("open_ai_api_key"), base_url=conf().get("open_ai_api_base"))
+        self.client = AzureOpenAI(api_key=conf().get("open_ai_api_key"), base_url=conf().get("open_ai_api_base"))
         self.sessions = SessionManager(ChatGPTSession, model=conf().get("model") or "gpt-4o-mini")
 
     def reply(self, query, context=None):
@@ -140,7 +140,7 @@ class ChatGPTBot(Bot):
         try:
             response = self.client.chat.completions.create(
                 model="gpt-4o-mini",
-                messages=session.messages[-3:],
+                messages=session.messages,
                 temperature=0.7,
                 top_p=1,
                 # max_tokens=2024,
