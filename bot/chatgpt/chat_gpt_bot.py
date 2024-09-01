@@ -4,7 +4,7 @@ import os
 import time
 import json
 import openai
-import openai.error
+# import openai.error
 import requests
 import datetime
 
