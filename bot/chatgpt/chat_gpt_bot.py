@@ -119,7 +119,7 @@ class ChatGPTBot(Bot, OpenAIImage):
             logger.info(f"0. what kind of query for: {query}")
             azure_agent = AzureOpenAIAgent("gpt-4o-mini")
             response = azure_agent.agent_question_analysis(query)
-
+            logger.info(f"query type: {response}")
             if "场地相关问题" in response:
                 logger.info(f"1. query for tennis court agent: {query}")
                 response = azure_agent.agent_question_analysis(query)
