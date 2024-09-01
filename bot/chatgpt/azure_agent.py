@@ -4,8 +4,9 @@ from openai import AzureOpenAI
 
 
 class AzureOpenAIAgent:
-    def __init__(self, model: str, api_key: str):
+    def __init__(self, model: str):
         endpoint = os.getenv("AZURE_OPENAI_ENDPOINT", "https://chatgpt3.openai.azure.com/")
+        api_key = os.getenv("AZURE_OPENAI_API_KEY")
         api_version = "2024-05-01-preview"
         self.model = model
         self.client = AzureOpenAI(
@@ -101,6 +102,6 @@ class AzureOpenAIAgent:
 
 # 使用示例
 if __name__ == "__main__":
-    agent = AzureOpenAIAgent("gpt-4o-mini", "your-azure-openai-api-key")
+    agent = AzureOpenAIAgent("gpt-4o-mini")
     response = agent.agent_question_analysis("大沙河在哪？")
     print(response)

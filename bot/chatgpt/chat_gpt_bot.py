@@ -117,7 +117,7 @@ class ChatGPTBot(Bot, OpenAIImage):
 
             # 问题类型分类
             logger.info(f"0. what kind of query for: {query}")
-            azure_agent = AzureOpenAIAgent(model, api_key)
+            azure_agent = AzureOpenAIAgent("gpt-4o-mini")
             response = azure_agent.agent_question_analysis(query)
 
             if "场地相关问题" in response:
