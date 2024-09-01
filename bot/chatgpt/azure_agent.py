@@ -1,6 +1,7 @@
 import os
 import time
 import openai
+from common.log import logger
 from openai import AzureOpenAI
 
 
