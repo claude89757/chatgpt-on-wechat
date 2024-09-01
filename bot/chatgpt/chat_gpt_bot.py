@@ -22,7 +22,7 @@ from bot.chatgpt.azure_agent import AzureOpenAIAgent
 class ChatGPTBot(Bot):
     def __init__(self):
         # set the default api_key
-        self.client = OpenAI(api_key=os.environ['OPENAI_API_KEY'], base_url=conf().get("open_ai_api_base"))
+        self.client = OpenAI(api_key=conf().get("open_ai_api_key"), base_url=conf().get("open_ai_api_base"))
         self.sessions = SessionManager(ChatGPTSession, model=conf().get("model") or "gpt-4o-mini")
 
     def reply(self, query, context=None):
