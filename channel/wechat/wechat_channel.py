@@ -224,9 +224,9 @@ def create_loop_task():
                 if current_hour == 6:
                     first_line = f"【每日🎾】 早上好 {weekday_cn} {date_str} \n------"
                     sent_6am = True
-                elif current_hour == 12:
-                    first_line = f"【每日🎾】 中午好 {weekday_cn} {date_str} \n------"
-                    sent_12am = True
+                # elif current_hour == 12:
+                #     first_line = f"【每日🎾】 中午好 {weekday_cn} {date_str} \n------"
+                #     sent_12am = True
                 else:
                     first_line = f"【每日🎾】 下午好 {weekday_cn} {date_str} \n------"
                     sent_18am = True

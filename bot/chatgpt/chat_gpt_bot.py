@@ -18,6 +18,8 @@ from common.log import logger
 from common.token_bucket import TokenBucket
 from config import conf, load_config
 
+from bot.chatgpt.azure_agent import AzureOpenAIAgent
+
 
 # OpenAI对话模型API (可用)
 class ChatGPTBot(Bot, OpenAIImage):
@@ -114,40 +116,18 @@ class ChatGPTBot(Bot, OpenAIImage):
                 new_args["model"] = model
 
             # 问题类型分类
-            logger.info(f"1. what kind of query for: {query}")
+            logger.info(f"0. what kind of query for: {query}")
+            azure_agent = AzureOpenAIAgent(model, api_key)
+            response = azure_agent.agent_question_analysis(query)
 
-            new_query = f"""任务要求：对[当前问题]进行意图分类，严格按照[意图分类]和[回答示例]回答, 不需要解释。
-当前问题：{query}
-已知的场地简称：大沙河、深圳湾、香蜜、金地、威新、网羽、黄木岗、简上、深云、莲花、华侨城、北站、泰尼斯、总裁、梅林、山花
-注意事项：可能查询不包含场地简称
-意图分类：查询空场信息|查询场地信息|其他闲聊
-问题示例1：明天哪里还有场？大沙河还有场么？威新有场？明晚哪里还有空场么？今晚有空场么？
-回答示例1: 查询空场信息
-问题示例2：怎么订深圳湾？简上的预定方式？深圳湾的小程序是哪个?场地怎么预定？怎么订场？
-回答示例2: 查询场地信息
-问题示例3: 你是机器人么？你能干什么？
-回答示例3: 其他闲聊"""
-            session = self.sessions.session_query(new_query, session_id)
-            logger.debug("[CHATGPT] session query={}".format(session.messages))
-            reply_content = self.reply_text(session, api_key, args=new_args)
-            logger.debug(
-                "[CHATGPT] new_query={}, session_id={}, reply_cont={}, completion_tokens={}".format(
-                    session.messages,
-                    session_id,
-                    reply_content["content"],
-                    reply_content["completion_tokens"],
-                )
-            )
-
-            if reply_content["content"] == "查询空场信息":
-                logger.info(f"2. query for free courts: {query}")
-                reply_content["content"] = "深圳热门网球场实时动态\nhttps://docs.qq.com/sheet/DTkxyc09ZQmRuYWVk?tab=BB08J2"
-            elif reply_content["content"] == "查询场地信息":
-                logger.info(f"2. query for court infos: {query}")
-                reply_content["content"] = "深圳热门网球场预定方式\nhttps://docs.qq.com/sheet/DTkxyc09ZQmRuYWVk?tab=u9u8hz"
+            if "场地相关问题" in response:
+                logger.info(f"1. query for tennis court agent: {query}")
+                response = azure_agent.agent_question_analysis(query)
+                logger.info(f"tennis court agent response: {response}")
+                return Reply(ReplyType.TEXT, response)
             else:
-                # 其他闲聊
-                logger.info(f"3. query for chat: {query}")
+                # 其他
+                logger.info(f"2. query for other chat: {query}")
                 self.sessions.clear_all_session()
                 session = self.sessions.session_query(query, session_id)
                 logger.debug("[CHATGPT] session query={}".format(session.messages))
