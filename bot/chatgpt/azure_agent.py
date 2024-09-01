@@ -30,45 +30,54 @@ class AzureOpenAIAgent:
         if not self.assistant:
             raise Exception("Assistant not created. Please create an assistant first.")
 
-        # 创建一个线程
-        thread = self.client.beta.threads.create()
+        try:
+            # 创建一个线程
+            thread = self.client.beta.threads.create()
 
-        # 添加用户问题到线程
-        self.client.beta.threads.messages.create(
-            thread_id=thread.id,
-            role="user",
-            content=question
-        )
-
-        # 运行线程
-        run = self.client.beta.threads.runs.create(
-            thread_id=thread.id,
-            assistant_id=self.assistant.id,
-        )
-
-        # 循环直到运行完成或失败
-        while run.status in ['queued', 'in_progress', 'cancelling']:
-            time.sleep(1)
-            run = self.client.beta.threads.runs.retrieve(
+            # 添加用户问题到线程
+            self.client.beta.threads.messages.create(
                 thread_id=thread.id,
-                run_id=run.id
+                role="user",
+                content=question
             )
 
-        if run.status == 'completed':
-            messages = self.client.beta.threads.messages.list(
-                thread_id=thread.id
+            # 运行线程
+            run = self.client.beta.threads.runs.create(
+                thread_id=thread.id,
+                assistant_id=self.assistant.id,
             )
-            for message in messages:
-                if message.role == 'assistant':
-                    return message.content[0].text.value
-        else:
-            raise Exception(f"run.status: {run.status}")
+
+            # 循环直到运行完成或失败
+            start_time = time.time()
+            while run.status in ['queued', 'in_progress', 'cancelling', 'incomplete']:
+                time.sleep(1)
+                run = self.client.beta.threads.runs.retrieve(
+                    thread_id=thread.id,
+                    run_id=run.id
+                )
+                # 检查是否超时
+                elapsed_time = time.time() - start_time
+                if elapsed_time > 60:
+                    raise TimeoutError(f"Operation timed out after {60} seconds")
+
+            if run.status == 'completed':
+                messages = self.client.beta.threads.messages.list(
+                    thread_id=thread.id
+                )
+                for message in messages:
+                    if message.role == 'assistant':
+                        return message.content[0].text.value
+            else:
+                raise Exception(f"run.status: {run.status}")
+        except Exception as error:
+            return f"Ops, 出错了: {error}"
 
     def agent_tennis_court(self, question):
         self.create_assistant(
             model=self.model,
             instructions="你是网球场预定小助手，请根据文档，回答用户的问题。"
-                         "如文档中没有关联的信息，则回答还不知道，欢迎协助录入更多场地信息",
+                         "风格要求：回答简单明了，不要超过140个字"
+                         "其他要求：不捏造事实，如文档中无相关信息，则回答不知道，并欢迎协助录入更多场地信息。",
             tools=[{"type": "file_search"}],
             tool_resources={"file_search": {"vector_store_ids": ["vs_s8zsOws6u0NNOwkJV6gszCXA"]}},
             temperature=0.1,
