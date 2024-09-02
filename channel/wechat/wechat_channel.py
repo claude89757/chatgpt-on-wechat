@@ -225,9 +225,11 @@ def create_loop_task():
                 # elif current_hour == 12:
                 #     first_line = f"【每日🎾】 中午好 {weekday_cn} {date_str} \n------"
                 #     sent_12am = True
-                else:
+                elif current_hour == 18:
                     first_line = f"【每日🎾】 下午好 {weekday_cn} {date_str} \n------"
                     sent_18am = True
+                else:
+                    pass
                 if msg_list:
                     msg_list.insert(0, first_line)
                 else:
