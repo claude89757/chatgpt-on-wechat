@@ -26,6 +26,7 @@ from config import conf, get_appdata_dir
 from lib import itchat
 from lib.itchat.content import *
 from lib.tencent_docs.tencent_docs import get_docs_operator
+from lib.tools.get_msg_from_github import get_push_msg_from_git
 
 
 @itchat.msg_register([TEXT, VOICE, PICTURE, NOTE, ATTACHMENT, SHARING])
@@ -176,7 +177,14 @@ def create_loop_task():
             try:
                 docs = get_docs_operator()
                 for chat_room in chat_rooms:
-                    up_for_send_msg = docs.get_up_for_send_msg_list()  # 获取当日网球场状态
+                    up_for_send_msg = docs.get_up_for_send_msg_list()  # 第一种途径，从在线文档查询信息
+
+                    git_msg_list = get_push_msg_from_git()  # 第二种途径，从github查询信息
+                    if git_msg_list:
+                        up_for_send_msg.extend(git_msg_list)
+                    else:
+                        pass
+
                     for msg in up_for_send_msg:
                         msg_at_group = f"{chat_room['NickName']}_{msg}"
                         if msg_at_group in is_send_msg_list:
