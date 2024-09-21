@@ -143,14 +143,15 @@ def get_push_msg_from_git():
         url = 'https://raw.githubusercontent.com/claude89757/tennis_helper/refs/heads/main/isz_data_infos.json'
         data = get_data_from_url(url)
 
-        print(data)
-
         # 过滤并生成通知列表
         notifications = filter_slots(data)
 
         # 输出结果
+        print("data from git================")
         for n in notifications:
             print(n)
+        print("data from git================")
+
         return notifications
     except Exception as error:
         print(error)
