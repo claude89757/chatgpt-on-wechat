@@ -44,7 +44,7 @@ def check_criteria(time_range, status):
 def check_criteria_for_weekend(time_range, status):
     if '元' in status:
         start_time, end_time = parse_time_range(time_range)
-        if start_time.hour >= 12:
+        if start_time.hour >= 15:
             return True
     return False
 
