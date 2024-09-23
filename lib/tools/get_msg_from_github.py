@@ -109,6 +109,8 @@ def filter_slots(data):
     for location in data:
         location_url = data[location].get('url')
         for date in data[location]:
+            if date == 'url':
+                continue
             court_free_slot_list = []
             court_list = []
             for court in data[location][date]:
@@ -147,7 +149,6 @@ def filter_slots(data):
                 notifications.append(notification)
             else:
                 pass
-
     return list(set(notifications))
 
 
