@@ -107,17 +107,16 @@ def is_time_difference_greater_than_one_hour(time_intervals):
 def filter_slots(data):
     notifications = []
     for location in data:
-        location_url = data[location].get('url')
-        for date in data[location]:
-            if date == 'url':
-                continue
+        location_url = data[location]['url']
+        court_infos = data[location]['court_infos']
+        for date in court_infos:
             court_free_slot_list = []
             court_list = []
-            for court in data[location][date]:
+            for court in court_infos[date]:
                 if "墙" in court:
                     continue
                 slot_list = []
-                for slot in data[location][date][court]:
+                for slot in court_infos[date][court]:
                     time_range = slot['time']
                     status = slot['status']
                     if "星期六" in date or "星期日" in date:
