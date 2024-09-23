@@ -128,7 +128,8 @@ def filter_slots(data):
                     if is_time_difference_greater_than_one_hour(merged_slot_list):
                         for merged_slot in merged_slot_list:
                             if merged_slot[0] != "22:00":
-                                notification = f"【{location}-{court.replace('网球场', '')}】{date}空场: {merged_slot}"
+                                merged_slot_str = "-".join(merged_slot)
+                                notification = f"【{location}-{court.replace('网球场', '')}】{date}空场: {merged_slot_str}"
                                 notifications.append(notification)
                             else:
                                 pass
