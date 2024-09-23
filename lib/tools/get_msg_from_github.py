@@ -63,7 +63,7 @@ def merge_time_ranges(data):
         return data
     else:
         pass
-    print(f"merging {data}")
+    # print(f"merging {data}")
     # 将时间段转换为分钟数，并按照开始时间排序
     data_in_minutes = sorted([(int(start[:2]) * 60 + int(start[3:]), int(end[:2]) * 60 + int(end[3:]))
                               for start, end in data])
@@ -82,7 +82,7 @@ def merge_time_ranges(data):
 
     # 将分钟数转换为时间段
     result = [[f'{start // 60:02d}:{start % 60:02d}', f'{end // 60:02d}:{end % 60:02d}'] for start, end in merged_data]
-    print(f"merged {result}")
+    # print(f"merged {result}")
     return result
 
 
@@ -107,11 +107,13 @@ def is_time_difference_greater_than_one_hour(time_intervals):
 def filter_slots(data):
     notifications = []
     for location in data:
+        location_url = data[location].get('url')
         for date in data[location]:
+            court_free_slot_list = []
+            court_list = []
             for court in data[location][date]:
                 if "墙" in court:
                     continue
-                print(court)
                 slot_list = []
                 for slot in data[location][date][court]:
                     time_range = slot['time']
@@ -128,20 +130,31 @@ def filter_slots(data):
                     if is_time_difference_greater_than_one_hour(merged_slot_list):
                         for merged_slot in merged_slot_list:
                             if merged_slot[0] != "22:00":
-                                merged_slot_str = "-".join(merged_slot)
-                                notification = f"【{location}-{court.replace('网球场', '')}】{date}空场: {merged_slot_str}"
-                                notifications.append(notification)
-                            else:
-                                pass
-                    else:
-                        pass
+                                court_free_slot_list.extend(merged_slot_list)
+                                court_list.append(court.replace('网球场', ''))
+                else:
+                    pass
+            if court_free_slot_list:
+                merged_slot_list = merge_time_ranges(court_free_slot_list)
+                all_merged_slot_list = []
+                for merged_slot in merged_slot_list:
+                    merged_slot_str = "-".join(merged_slot)
+                    all_merged_slot_list.append(merged_slot_str)
+                all_slot_str = ','.join(all_merged_slot_list)
+                court_str = "|".join(court_list)
+                notification = f"【{location}】{date} {court_str}: {all_slot_str}" \
+                               f"\n预定链接: {location_url}"
+                notifications.append(notification)
+            else:
+                pass
+
     return list(set(notifications))
 
 
 def get_push_msg_from_git():
     try:
         # 从链接读取数据
-        url = 'https://raw.githubusercontent.com/claude89757/tennis_helper/refs/heads/main/isz_data_infos.json'
+        url = 'https://raw.githubusercontent.com/claude89757/tennis_data/refs/heads/main/isz_data_infos.json'
         data = get_data_from_url(url)
 
         # 过滤并生成通知列表
@@ -157,3 +170,5 @@ def get_push_msg_from_git():
     except Exception as error:
         print(error)
         return []
+
+get_push_msg_from_git()
