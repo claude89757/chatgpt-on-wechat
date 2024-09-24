@@ -178,28 +178,21 @@ def create_loop_task():
                 docs = get_docs_operator()
                 for chat_room in chat_rooms:
                     up_for_send_msg = docs.get_up_for_send_msg_list()  # 第一种途径，从在线文档查询信息
-
                     git_msg_list = get_push_msg_from_git()  # 第二种途径，从github查询信息
                     if git_msg_list:
                         up_for_send_msg.extend(git_msg_list)
                     else:
                         pass
-
                     for msg in up_for_send_msg:
                         msg_at_group = f"{chat_room['NickName']}_{msg}"
                         if msg_at_group in is_send_msg_list:
                             pass
                         else:
-                            if not is_send_msg_list:
-                                # 首次启动
-                                pass
-                                is_send_msg_list.append(msg_at_group)
-                            else:
-                                # 非首次启动
-                                print(f"{now} sending {msg} to {chat_room['NickName']}")
-                                itchat.send_msg(msg=msg, toUserName=chat_room['UserName'])
-                                is_send_msg_list.append(msg_at_group)
-                                save_message_to_file(msg_at_group)  # 保存消息到文件
+                            print(f"{now} sending {msg} to {chat_room['NickName']}")
+                            itchat.send_msg(msg=msg, toUserName=chat_room['UserName'])
+                            is_send_msg_list.append(msg_at_group)
+                            # save_message_to_file(msg_at_group)  # 保存消息到文件
+                is_send_msg_list = is_send_msg_list[-50:]
             except Exception as error:
                 print(f"looping error: {error}")
 

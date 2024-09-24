@@ -171,4 +171,7 @@ def get_push_msg_from_git():
         print(error)
         return []
 
-get_push_msg_from_git()
+
+# testing
+if __name__ == '__main__':
+    get_push_msg_from_git()

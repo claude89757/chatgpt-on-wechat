@@ -114,39 +114,39 @@ class Hello(Plugin):
             # 生成一个0到1之间的随机浮点数
             rand_num = random.random()
             # 判断随机数
-            if rand_num < 0.02:  # 接下来有10%的概率进入这个分支
+            if rand_num < 0.1:  # 接下来有10%的概率进入这个分支
                 print("进入分支1: 随机Tips")
                 e_context["context"].type = ContextType.TEXT
                 e_context["context"].content = f"请你随机介绍一个简短的网球的小知识"
                 e_context.action = EventAction.BREAK  # 事件结束，进入默认处理逻辑
                 return
-            elif rand_num < 0.05:  # 接下来有10%的概率进入这个分支
+            elif rand_num < 0.2:  # 接下来有10%的概率进入这个分支
                 print("进入分支2: 随机Tips")
                 e_context["context"].type = ContextType.TEXT
                 e_context["context"].content = f"请你随机介绍一个简短的提升网球水平的小知识"
                 e_context.action = EventAction.BREAK  # 事件结束，进入默认处理逻辑
                 return
             else:  # 剩下的概率进入这个分支
-                last_sent_msg = load_last_sent_message()
-                if last_sent_msg:
-                    print("进入分支4: 查询最新发送的场地的实时状态")
-                    court_msg = get_realtime_tennis_court_msg(last_sent_msg)  # 获取网球场实时状态
-                    reply = Reply()
-                    reply.type = ReplyType.TEXT
-                    reply.content = court_msg
-                    e_context["reply"] = reply
-                    e_context.action = EventAction.BREAK_PASS  # 事件结束，进入默认处理逻辑，一般会覆写reply
-                    return
-                else:
-                    print("进入分支3: 发送网球场动态")
-                    docs = get_docs_operator()
-                    court_msg = docs.get_today_court_msg()  # 获取当日网球场状态
-                    reply = Reply()
-                    reply.type = ReplyType.TEXT
-                    reply.content = court_msg
-                    e_context["reply"] = reply
-                    e_context.action = EventAction.BREAK_PASS  # 事件结束，进入默认处理逻辑，一般会覆写reply
-                    return
+                # last_sent_msg = load_last_sent_message()
+                # if last_sent_msg:
+                #     print("进入分支4: 查询最新发送的场地的实时状态")
+                #     court_msg = get_realtime_tennis_court_msg(last_sent_msg)  # 获取网球场实时状态
+                #     reply = Reply()
+                #     reply.type = ReplyType.TEXT
+                #     reply.content = court_msg
+                #     e_context["reply"] = reply
+                #     e_context.action = EventAction.BREAK_PASS  # 事件结束，进入默认处理逻辑，一般会覆写reply
+                #     return
+                # else:
+                print("进入分支3: 发送网球场动态")
+                docs = get_docs_operator()
+                court_msg = docs.get_today_court_msg()  # 获取当日网球场状态
+                reply = Reply()
+                reply.type = ReplyType.TEXT
+                reply.content = court_msg
+                e_context["reply"] = reply
+                e_context.action = EventAction.BREAK_PASS  # 事件结束，进入默认处理逻辑，一般会覆写reply
+                return
 
         content = e_context["context"].content
         logger.debug("[Hello] on_handle_context. content: %s" % content)
