@@ -249,7 +249,7 @@ def create_loop_task():
 
             # 循环等待时间
             print("sleeping for 120s")
-            time.sleep(120)
+            time.sleep(80)
 
     # Start the thread
     thread = threading.Thread(target=timed_loop_task, daemon=True)
