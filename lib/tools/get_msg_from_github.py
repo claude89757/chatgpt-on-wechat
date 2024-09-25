@@ -141,8 +141,8 @@ def filter_slots(data):
                 for merged_slot in merged_slot_list:
                     merged_slot_str = "-".join(merged_slot)
                     all_merged_slot_list.append(merged_slot_str)
-                all_slot_str = ','.join(all_merged_slot_list)
-                court_str = "|".join(court_list)
+                all_slot_str = ','.join(sorted(list(set(all_merged_slot_list))))
+                court_str = "|".join(sorted(list(set(court_list))))
                 notification = f"【{location}】{date} {court_str}: {all_slot_str}" \
                                f"\n预定链接: {location_url}"
                 notifications.append(notification)

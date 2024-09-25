@@ -189,7 +189,7 @@ def create_loop_task():
                         up_for_send_msg_list.append(msg)
                         is_send_msg_list.append(msg)
 
-                for msg in up_for_send_msg_list:
+                for msg in set(up_for_send_msg_list):
                     for chat_room in chat_rooms:
                         now = datetime.datetime.now().strftime("%Y/%m/%d %H:%M:%S")
                         print(f"{now} sending {msg} to {chat_room['NickName']}")
