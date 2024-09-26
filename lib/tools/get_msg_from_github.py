@@ -143,7 +143,7 @@ def filter_slots(data):
             if court_free_slot_dict:
                 # Build the message for this date
                 # Format: 【Location】Date CourtNumbers: TimeSlots
-                court_numbers = '|'.join([f"{c}号" for c in sorted(court_free_slot_dict.keys())])
+                court_numbers = '|'.join(sorted(list(set(court_free_slot_dict.keys()))))
                 # Combine all time slots for all courts (union)
                 all_time_slots = set()
                 for slots in court_free_slot_dict.values():
