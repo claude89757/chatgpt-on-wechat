@@ -177,12 +177,17 @@ def create_loop_task():
             try:
                 up_for_send_msg_list = []
                 docs = get_docs_operator()
+                all_msg_list = []
                 msg_list = docs.get_up_for_send_msg_list()  # 第一种途径，从在线文档查询信息
+                for msg in msg_list:
+                    if "深圳湾" in msg or "威新" in msg:
+                        all_msg_list.append(msg)
+
                 git_msg_list = get_push_msg_from_git()  # 第二种途径，从github查询信息
                 if git_msg_list:
-                    msg_list.extend(git_msg_list)
+                    all_msg_list.extend(git_msg_list)
 
-                for msg in msg_list:
+                for msg in all_msg_list:
                     if msg in is_send_msg_list:
                         pass
                     else:
