@@ -27,7 +27,7 @@ def parse_time_range(time_range):
     start_str, end_str = time_range.split('-')
     start_time = parse_time(start_str)
     end_time = parse_time(end_str)
-    # 处理跨午夜的时间段
+    # Handle time ranges that cross midnight
     if end_time <= start_time:
         end_time += timedelta(days=1)
     return start_time, end_time
@@ -51,24 +51,21 @@ def check_criteria_for_weekend(time_range, status):
 
 def merge_time_ranges(data):
     """
-    将时间段合并
+    Merge overlapping time ranges.
 
     Args:
-        data: 包含多个时间段的列表，每个时间段由开始时间和结束时间组成，格式为[['07:00', '08:00'], ['07:00', '09:00'], ...]
+        data: A list of time ranges, each represented as [start_time, end_time] strings.
 
     Returns:
-        合并后的时间段列表，每个时间段由开始时间和结束时间组成，格式为[['07:00', '09:00'], ['09:00', '16:00'], ...]
+        A list of merged time ranges, each represented as [start_time, end_time] strings.
     """
     if not data:
         return data
-    else:
-        pass
-    # print(f"merging {data}")
-    # 将时间段转换为分钟数，并按照开始时间排序
+    # Convert time ranges to minutes and sort by start time
     data_in_minutes = sorted([(int(start[:2]) * 60 + int(start[3:]), int(end[:2]) * 60 + int(end[3:]))
                               for start, end in data])
 
-    # 合并重叠的时间段
+    # Merge overlapping time ranges
     merged_data = []
     start, end = data_in_minutes[0]
     for i in range(1, len(data_in_minutes)):
@@ -80,28 +77,33 @@ def merge_time_ranges(data):
             start, end = next_start, next_end
     merged_data.append((start, end))
 
-    # 将分钟数转换为时间段
+    # Convert minutes back to time strings
     result = [[f'{start // 60:02d}:{start % 60:02d}', f'{end // 60:02d}:{end % 60:02d}'] for start, end in merged_data]
-    # print(f"merged {result}")
     return result
 
 
-def is_time_difference_greater_than_one_hour(time_intervals):
+def filter_intervals_shorter_than_one_hour(time_intervals):
+    """
+    Filter out time intervals shorter than 1 hour.
+
+    Args:
+        time_intervals: A list of time intervals, each represented as [start_time_str, end_time_str].
+
+    Returns:
+        A list of time intervals that are at least 1 hour long.
+    """
+    filtered_intervals = []
     for interval in time_intervals:
         start_time_str, end_time_str = interval
         start_time = datetime.strptime(start_time_str, '%H:%M')
         end_time = datetime.strptime(end_time_str, '%H:%M')
-
-        # 计算时间差
+        if end_time < start_time:
+            end_time += timedelta(days=1)
         time_difference = end_time - start_time
-
-        # 将时间差转换为秒，再转换为小时
         time_difference_in_hours = time_difference.total_seconds() / 3600
-
-        # 判断时间差是否大于等于1小时
         if time_difference_in_hours >= 1:
-            return True
-    return False
+            filtered_intervals.append(interval)
+    return filtered_intervals
 
 
 def filter_slots(data):
@@ -109,9 +111,10 @@ def filter_slots(data):
     for location in data:
         location_url = data[location]['url']
         court_infos = data[location]['court_infos']
-        for date in court_infos:
-            court_free_slot_list = []
-            court_list = []
+
+        messages = []
+        for date in sorted(court_infos.keys()):
+            court_free_slot_dict = {}  # Court number -> list of time slots
             for court in court_infos[date]:
                 if "墙" in court:
                     continue
@@ -128,39 +131,46 @@ def filter_slots(data):
 
                 if slot_list:
                     merged_slot_list = merge_time_ranges(slot_list)
-                    if is_time_difference_greater_than_one_hour(merged_slot_list):
-                        for merged_slot in merged_slot_list:
-                            if merged_slot[0] != "22:00":
-                                court_free_slot_list.extend(merged_slot_list)
-                                court_list.append(court.replace('网球场', ''))
-                else:
-                    pass
-            if court_free_slot_list:
-                merged_slot_list = merge_time_ranges(court_free_slot_list)
-                all_merged_slot_list = []
-                for merged_slot in merged_slot_list:
-                    merged_slot_str = "-".join(merged_slot)
-                    all_merged_slot_list.append(merged_slot_str)
-                all_slot_str = ','.join(sorted(list(set(all_merged_slot_list))))
-                court_str = "|".join(sorted(list(set(court_list))))
-                notification = f"【{location}】{date} {court_str}: {all_slot_str}" \
-                               f"\n预定链接: {location_url}"
-                notifications.append(notification)
-            else:
-                pass
-    return list(set(notifications))
+                    merged_slot_list = filter_intervals_shorter_than_one_hour(merged_slot_list)
+
+                    if merged_slot_list:
+                        # Collect the time slots per court
+                        slot_strings = ['-'.join(slot) for slot in merged_slot_list if slot[0] != "22:00"]
+                        if slot_strings:
+                            court_number = court.replace('网球场', '').strip()
+                            court_free_slot_dict[court_number] = slot_strings
+
+            if court_free_slot_dict:
+                # Build the message for this date
+                # Format: 【Location】Date CourtNumbers: TimeSlots
+                court_numbers = '|'.join([f"{c}号" for c in sorted(court_free_slot_dict.keys())])
+                # Combine all time slots for all courts (union)
+                all_time_slots = set()
+                for slots in court_free_slot_dict.values():
+                    all_time_slots.update(slots)
+                time_slots_str = ','.join(sorted(all_time_slots))
+                # Build the message line
+                message_line = f"【{location}】{date} {court_numbers}: {time_slots_str}"
+                messages.append(message_line)
+
+        if messages:
+            # Combine messages for the location
+            notification = '\n'.join(messages) + f"\n预定链接: {location_url}"
+            notifications.append(notification)
+
+    return notifications
 
 
 def get_push_msg_from_git():
     try:
-        # 从链接读取数据
+        # Read data from the URL
         url = 'https://raw.githubusercontent.com/claude89757/tennis_data/refs/heads/main/isz_data_infos.json'
         data = get_data_from_url(url)
 
-        # 过滤并生成通知列表
+        # Filter and generate notifications
         notifications = filter_slots(data)
 
-        # 输出结果
+        # Output the results
         print("data from git================")
         for n in notifications:
             print(n)
