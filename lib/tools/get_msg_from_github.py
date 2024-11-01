@@ -164,8 +164,13 @@ def filter_slots(data):
 def get_push_msg_from_git():
     try:
         # Read data from the URL
+        print("start get data from git")
         url = 'https://raw.githubusercontent.com/claude89757/tennis_data/refs/heads/main/isz_data_infos.json'
         data = get_data_from_url(url)
+
+        print("raw data from git================")
+        print(data)
+        print("raw data from git================")
 
         # Filter and generate notifications
         notifications = filter_slots(data)
