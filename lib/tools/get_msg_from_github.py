@@ -169,7 +169,7 @@ def get_push_msg_from_git():
         data = get_data_from_url(url)
 
         print("raw data from git================")
-        print(data)
+        print(len(data))
         print("raw data from git================")
 
         # Filter and generate notifications
