@@ -27,6 +27,7 @@ from lib import itchat
 from lib.itchat.content import *
 from lib.tencent_docs.tencent_docs import get_docs_operator
 from lib.tools.get_msg_from_github import get_push_msg_from_git
+from lib.airflow.airflow_sdk import get_sh_tennis_court_data
 
 
 @itchat.msg_register([TEXT, VOICE, PICTURE, NOTE, ATTACHMENT, SHARING])
@@ -196,68 +197,91 @@ def create_loop_task():
 
                 for msg in set(up_for_send_msg_list):
                     for chat_room in chat_rooms:
-                        now = datetime.datetime.now().strftime("%Y/%m/%d %H:%M:%S")
-                        print(f"{now} sending {msg} to {chat_room['NickName']}")
-                        itchat.send_msg(msg=msg, toUserName=chat_room['UserName'])
-                        # save_message_to_file(msg_at_group)  # 保存消息到文件
+                        if chat_room['NickName'].startswith("Zacks网球场预定小助手"):
+                            now = datetime.datetime.now().strftime("%Y/%m/%d %H:%M:%S")
+                            print(f"{now} sending {msg} to {chat_room['NickName']}")
+                            itchat.send_msg(msg=msg, toUserName=chat_room['UserName'])
+                            # save_message_to_file(msg_at_group)  # 保存消息到文件
+                        else:
+                            print(f"not sending {msg} to {chat_room['NickName']}")
                 is_send_msg_list = is_send_msg_list[-50:]
             except Exception as error:
                 print(f"looping error: {error}")
 
-            # 查询每日新闻
-            current_time = datetime.datetime.now()
-            current_hour = current_time.hour
-            current_minute = current_time.minute
-            today = datetime.datetime.now()
-            date_str = today.strftime("%m月%d日")
-            weekday_str = today.strftime("%A")
-            weekday_dict = {'Monday': '星期一', 'Tuesday': '星期二', 'Wednesday': '星期三',
-                            'Thursday': '星期四', 'Friday': '星期五', 'Saturday': '星期六', 'Sunday': '星期日'}
-            weekday_cn = weekday_dict[weekday_str]
-            # 检查是否是早上8点或18点，并且还未发送消息
-            if (current_hour == 6 and not sent_6am) or (current_hour == 18 and not sent_18am):
-                # 查询新闻
-                news_list = get_bing_news_msg(query='网球')
-                # 组合消息
-                msg_list = []
-                for news_data in news_list:
-                    print(news_data)
-                    if news_data['name'] in old_news_list:
-                        pass
+            # 从Airflow查询待发送的信息列表
+            try:
+                up_for_send_msg_list = []
+                data_list = get_sh_tennis_court_data()
+                for data in data_list:
+                    if data not in is_send_msg_list:
+                        up_for_send_msg_list.append(data)
+                        is_send_msg_list.append(data)
                     else:
-                        msg_list.append(f"{news_data['name']}")
-                        msg_list.append(f"{news_data.get('url')}\n")
-                        old_news_list.append(news_data['name'])
-                if current_hour == 6:
-                    first_line = f"【每日🎾】 早上好 {weekday_cn} {date_str} \n------"
-                    sent_6am = True
-                # elif current_hour == 12:
-                #     first_line = f"【每日🎾】 中午好 {weekday_cn} {date_str} \n------"
-                #     sent_12am = True
-                elif current_hour == 18:
-                    first_line = f"【每日🎾】 下午好 {weekday_cn} {date_str} \n------"
-                    sent_18am = True
-                else:
-                    pass
-                if msg_list:
-                    msg_list.insert(0, first_line)
-                else:
-                    msg_list.append(first_line)
-                    msg_list.append("好像没什么新闻o(╥﹏╥)o")
-                msg = '\n'.join(msg_list)
-                for chat_room in chat_rooms:
-                    itchat.send_msg(msg=msg, toUserName=chat_room['UserName'])
+                        pass
+                print(f"up_for_send_msg_list: {up_for_send_msg_list}")
+                for msg in set(up_for_send_msg_list):
+                    for chat_room in chat_rooms:
+                        if chat_room['NickName'].startswith("上海网球场预定小助手"):
+                            now = datetime.datetime.now().strftime("%Y/%m/%d %H:%M:%S")
+                            print(f"{now} sending {msg} to {chat_room['NickName']}")
+                            itchat.send_msg(msg=msg, toUserName=chat_room['UserName'])
+            except Exception as error:
+                print(f"looping error: {error}")
 
-            # 每天重置发送状态
-            if current_hour == 0 and current_minute <= 1:
-                is_send_msg_list.clear()
-                old_news_list.clear()
-                sent_6am = False
-                sent_18am = False
+            # # 查询每日新闻
+            # current_time = datetime.datetime.now()
+            # current_hour = current_time.hour
+            # current_minute = current_time.minute
+            # today = datetime.datetime.now()
+            # date_str = today.strftime("%m月%d日")
+            # weekday_str = today.strftime("%A")
+            # weekday_dict = {'Monday': '星期一', 'Tuesday': '星期二', 'Wednesday': '星期三',
+            #                 'Thursday': '星期四', 'Friday': '星期五', 'Saturday': '星期六', 'Sunday': '星期日'}
+            # weekday_cn = weekday_dict[weekday_str]
+            # # 检查是否是早上8点或18点，并且还未发送消息
+            # if (current_hour == 6 and not sent_6am) or (current_hour == 18 and not sent_18am):
+            #     # 查询新闻
+            #     news_list = get_bing_news_msg(query='网球')
+            #     # 组合消息
+            #     msg_list = []
+            #     for news_data in news_list:
+            #         print(news_data)
+            #         if news_data['name'] in old_news_list:
+            #             pass
+            #         else:
+            #             msg_list.append(f"{news_data['name']}")
+            #             msg_list.append(f"{news_data.get('url')}\n")
+            #             old_news_list.append(news_data['name'])
+            #     if current_hour == 6:
+            #         first_line = f"【每日🎾】 早上好 {weekday_cn} {date_str} \n------"
+            #         sent_6am = True
+            #     # elif current_hour == 12:
+            #     #     first_line = f"【每日🎾】 中午好 {weekday_cn} {date_str} \n------"
+            #     #     sent_12am = True
+            #     elif current_hour == 18:
+            #         first_line = f"【每日🎾】 下午好 {weekday_cn} {date_str} \n------"
+            #         sent_18am = True
+            #     else:
+            #         pass
+            #     if msg_list:
+            #         msg_list.insert(0, first_line)
+            #     else:
+            #         msg_list.append(first_line)
+            #         msg_list.append("好像没什么新闻o(╥﹏╥)o")
+            #     msg = '\n'.join(msg_list)
+            #     for chat_room in chat_rooms:
+            #         itchat.send_msg(msg=msg, toUserName=chat_room['UserName'])
+
+            # # 每天重置发送状态
+            # if current_hour == 0 and current_minute <= 1:
+            #     is_send_msg_list.clear()
+            #     old_news_list.clear()
+            #     sent_6am = False
+            #     sent_18am = False
 
             # 循环等待时间
-            print("sleeping for 120s")
-            time.sleep(80)
+            print("sleeping for 60s")
+            time.sleep(60)
 
     # Start the thread
     thread = threading.Thread(target=timed_loop_task, daemon=True)
