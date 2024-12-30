@@ -52,74 +52,74 @@ class ChatGPTBot(Bot):
             if reply:
                 return reply
 
-            # 标记AI视频分析任务
-            if query == "动作分析" or str(query).upper() == "AI视频" or query == "动作打分" or query == "分析动作":
-                # 指定要写入的文件名
-                file_name = "trigger_ai_video_time.txt"
+            # # 标记AI视频分析任务
+            # if query == "动作分析" or str(query).upper() == "AI视频" or query == "动作打分" or query == "分析动作":
+            #     # 指定要写入的文件名
+            #     file_name = "trigger_ai_video_time.txt"
 
-                # 检查文件是否存在
-                if os.path.exists(file_name):
-                    # 获取文件的最后修改时间
-                    last_modified_time = datetime.datetime.fromtimestamp(os.path.getmtime(file_name))
-                    current_time = datetime.datetime.now()
-                    time_diff = current_time - last_modified_time
+            #     # 检查文件是否存在
+            #     if os.path.exists(file_name):
+            #         # 获取文件的最后修改时间
+            #         last_modified_time = datetime.datetime.fromtimestamp(os.path.getmtime(file_name))
+            #         current_time = datetime.datetime.now()
+            #         time_diff = current_time - last_modified_time
 
-                    # 如果文件的最后修改时间超过30分钟，则清空文件内容
-                    if time_diff > datetime.timedelta(minutes=30):
-                        with open(file_name, "w", encoding="utf-8") as file:
-                            file.write("")
-                        print(f"文件 '{file_name}' 超过30分钟未更新，已清空内容。")
-                    else:
-                        # 读取文件内容
-                        with open(file_name, "r", encoding="utf-8") as file:
-                            content = file.read()
-                            # 检查是否包含 "RUNNING" 字符串
-                            if "RUNNING" in content:
-                                reply = Reply(ReplyType.TEXT, "其他任务执行中，请5~10分钟后重新触发Zacks")
-                                return reply
+            #         # 如果文件的最后修改时间超过30分钟，则清空文件内容
+            #         if time_diff > datetime.timedelta(minutes=30):
+            #             with open(file_name, "w", encoding="utf-8") as file:
+            #                 file.write("")
+            #             print(f"文件 '{file_name}' 超过30分钟未更新，已清空内容。")
+            #         else:
+            #             # 读取文件内容
+            #             with open(file_name, "r", encoding="utf-8") as file:
+            #                 content = file.read()
+            #                 # 检查是否包含 "RUNNING" 字符串
+            #                 if "RUNNING" in content:
+            #                     reply = Reply(ReplyType.TEXT, "其他任务执行中，请5~10分钟后重新触发Zacks")
+            #                     return reply
 
-                # 将当前时间和其他信息写入文件
-                with open(file_name, "w", encoding="utf-8") as file:
-                    json_data = {
-                        "from_user_nickname": context.kwargs.get('msg').from_user_nickname,
-                        "to_user_nickname": context.kwargs.get('msg').to_user_nickname,
-                        "self_display_name": context.kwargs.get('msg').self_display_name,
-                        "status": "RUNNING",
-                        "timestamp": datetime.datetime.now().isoformat()
-                    }
-                    file.write(json.dumps(json_data))
-                print(f"'{json_data}' 已写入到 '{file_name}' 文件中。")
-                reply = Reply(ReplyType.TEXT, "正在触发AI视频分析任务...")
-                return reply
-            else:
-                pass
+            #     # 将当前时间和其他信息写入文件
+            #     with open(file_name, "w", encoding="utf-8") as file:
+            #         json_data = {
+            #             "from_user_nickname": context.kwargs.get('msg').from_user_nickname,
+            #             "to_user_nickname": context.kwargs.get('msg').to_user_nickname,
+            #             "self_display_name": context.kwargs.get('msg').self_display_name,
+            #             "status": "RUNNING",
+            #             "timestamp": datetime.datetime.now().isoformat()
+            #         }
+            #         file.write(json.dumps(json_data))
+            #     print(f"'{json_data}' 已写入到 '{file_name}' 文件中。")
+            #     reply = Reply(ReplyType.TEXT, "正在触发AI视频分析任务...")
+            #     return reply
+            # else:
+            #     pass
 
-            # 问题类型分类
-            logger.info(f"0. what kind of query for: {query}")
-            azure_agent = AzureOpenAIAgent("gpt-4o-mini")
-            response = azure_agent.agent_question_analysis(query)
-            logger.info(f"query type: {response}")
-            if "场地相关问题" in response:
-                logger.info(f"1. query for tennis court agent: {query}")
-                response = azure_agent.agent_tennis_court(query)
-                logger.info(f"tennis court agent response: {response}")
-                return Reply(ReplyType.TEXT, response)
-            else:
-                # 其他
-                logger.info(f"2. query for other chat: {query}")
-                self.sessions.clear_all_session()
-                session = self.sessions.session_query(query, session_id)
-                logger.debug("[CHATGPT] session query={}".format(session.messages))
+            # # 问题类型分类
+            # logger.info(f"0. what kind of query for: {query}")
+            # azure_agent = AzureOpenAIAgent("gpt-4o-mini")
+            # response = azure_agent.agent_question_analysis(query)
+            # logger.info(f"query type: {response}")
+            # if "" in response:
+            #     logger.info(f"1. query for tennis court agent: {query}")
+            #     response = azure_agent.agent_tennis_court(query)
+            #     logger.info(f"tennis court agent response: {response}")
+            #     return Reply(ReplyType.TEXT, response)
+            # else:
+            # 其他
+            logger.info(f"2. query for other chat: {query}")
+            self.sessions.clear_all_session()
+            session = self.sessions.session_query(query, session_id)
+            logger.debug("[CHATGPT] session query={}".format(session.messages))
 
-                reply_content = self.reply_text(session)
-                logger.debug(
-                    "[CHATGPT] new_query={}, session_id={}, reply_cont={}, completion_tokens={}".format(
-                        session.messages,
-                        session_id,
-                        reply_content["content"],
-                        reply_content["completion_tokens"],
-                    )
+            reply_content = self.reply_text(session)
+            logger.debug(
+                "[CHATGPT] new_query={}, session_id={}, reply_cont={}, completion_tokens={}".format(
+                    session.messages,
+                    session_id,
+                    reply_content["content"],
+                    reply_content["completion_tokens"],
                 )
+            )
             if reply_content["completion_tokens"] == 0 and len(reply_content["content"]) > 0:
                 reply = Reply(ReplyType.ERROR, reply_content["content"])
             elif reply_content["completion_tokens"] > 0:
