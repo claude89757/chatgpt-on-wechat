@@ -5,6 +5,7 @@ import time
 import json
 import openai
 from openai import AzureOpenAI
+from openai import OpenAI
 import datetime
 
 from bot.bot import Bot
@@ -22,15 +23,18 @@ from bot.chatgpt.azure_agent import AzureOpenAIAgent
 class ChatGPTBot(Bot):
     def __init__(self):
         # set the default api_key
-        endpoint = os.getenv("AZURE_OPENAI_ENDPOINT", "https://chatgpt3.openai.azure.com/")
-        api_key = os.getenv("AZURE_OPENAI_API_KEY")
-        api_version = "2024-05-01-preview"
-        self.client = AzureOpenAI(
-            azure_endpoint=endpoint,
-            api_key=api_key,
-            api_version=api_version
-        )
+        self.client = OpenAI(api_key=conf().get("open_ai_api_key"), base_url=conf().get("open_ai_api_base"))
         self.sessions = SessionManager(ChatGPTSession, model=conf().get("model") or "gpt-4o-mini")
+
+        # endpoint = os.getenv("AZURE_OPENAI_ENDPOINT", "https://chatgpt3.openai.azure.com/")
+        # api_key = os.getenv("AZURE_OPENAI_API_KEY")
+        # api_version = "2024-05-01-preview"
+        # self.client = AzureOpenAI(
+        #     azure_endpoint=endpoint,
+        #     api_key=api_key,
+        #     api_version=api_version
+        # )
+        # self.sessions = SessionManager(ChatGPTSession, model=conf().get("model") or "gpt-4o-mini")
 
     def reply(self, query, context=None):
         # acquire reply content
